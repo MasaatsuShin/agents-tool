@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>メモ帳アプリ</title>
+<style>
+
+    body { font-family: sans-serif; margin: 0; padding: 0; }
+
+    #tabs { display: flex; background: #ddd; border-bottom: 1px solid #aaa; }
+
+    .tab {
+
+      padding: 10px; cursor: pointer; border-right: 1px solid #aaa;
+
+      background: #eee; user-select: none;
+
+    }
+
+    .tab.active { background: white; font-weight: bold; }
+
+    #editor-container { padding: 10px; }
+
+    textarea {
+
+      width: 100%; height: 80vh; resize: none;
+
+      font-size: 14px; box-sizing: border-box;
+
+    }
+
+    #toolbar {
+
+      background: #f4f4f4; padding: 8px;
+
+      border-bottom: 1px solid #ccc;
+
+      display: flex; gap: 8px; flex-wrap: wrap;
+
+    }
+
+    button { cursor: pointer; }
+
+    .group-right { margin-left: auto; }
+</style>
+</head>
+<body>
+<div id="toolbar">
+<button onclick="addTab()">＋ タブ追加</button>
+<button onclick="removeTab()">✖ タブ削除</button>
+<div class="group-right">
+<button onclick="exportData()">📤 保存</button>
+<button onclick="triggerImport()">📥 復元</button>
+</div>
+</div>
+<input type="file" id="fileInput" style="display: none;" onchange="importData(this)" accept=".json">
+<div id="tabs"></div>
+<div id="editor-container"></div>
+<script>
+
+    const defaultTab = [{ id: 'tab1', title: 'タブ1', content: '' }];
+
+    let tabs = JSON.parse(localStorage.getItem('tabs')) || defaultTab;
+
+    let activeTabId = localStorage.getItem('activeTabId') || 'tab1';
+
+    function renderTabs() {
+
+      const tabsContainer = document.getElementById('tabs');
+
+      tabsContainer.innerHTML = '';
+
+      tabs.forEach(tab => {
+
+        const tabEl = document.createElement('div');
+
+        tabEl.className = 'tab' + (tab.id === activeTabId ? ' active' : '');
+
+        tabEl.textContent = tab.title;
+
+        tabEl.onclick = () => {
+
+          saveContent();
+
+          activeTabId = tab.id;
+
+          localStorage.setItem('activeTabId', activeTabId);
+
+          renderTabs();
+
+          renderEditor();
+
+        };
+
+        tabEl.ondblclick = () => renameTab(tab.id); 
+
+        tabsContainer.appendChild(tabEl);
+
+      });
+
+    }
+
+    function renderEditor() {
+
+      const editorContainer = document.getElementById('editor-container');
+
+      const activeTab = tabs.find(t => t.id === activeTabId);
+ 
+      if (!activeTab) {
+
+        if(tabs.length > 0) {
+
+            activeTabId = tabs[0].id;
+
+            renderEditor();
+
+        }
+
+        return;
+
+      }
+
+      editorContainer.innerHTML = `
+<textarea id="editor">${activeTab.content}</textarea>
+
+      `;
+
+      document.getElementById('editor').addEventListener('input', saveContent);
+
+    }
+
+    function saveContent() {
+
+      const textarea = document.getElementById('editor');
+
+      if (!textarea) return;
+
+      const content = textarea.value;
+
+      const tab = tabs.find(t => t.id === activeTabId);
+
+      if(tab) tab.content = content;
+
+      localStorage.setItem('tabs', JSON.stringify(tabs));
+
+    }
+
+    function addTab() {
+
+      saveContent();
+
+      const newId = 'tab' + Date.now();
+
+      const newTab = { id: newId, title: '新しいタブ', content: '' };
+
+      tabs.push(newTab);
+
+      activeTabId = newId;
+
+      localStorage.setItem('tabs', JSON.stringify(tabs));
+
+      localStorage.setItem('activeTabId', activeTabId);
+
+      renderTabs();
+
+      renderEditor();
+
+    }
+
+    function removeTab() {
+
+      if (tabs.length <= 1) {
+
+        alert('最低1つのタブが必要です');
+
+        return;
+
+      }
+ 
+      // ▼▼▼ 追加した確認処理 ▼▼▼
+
+      const currentTab = tabs.find(t => t.id === activeTabId);
+
+      const tabName = currentTab ? currentTab.title : 'このタブ';
+
+      if (!confirm(`「${tabName}」を削除してもよろしいですか？\nこの操作は元に戻せません。`)) {
+
+        return; // キャンセルされた場合はここで終了
+
+      }
+
+      // ▲▲▲ 追加ここまで ▲▲▲
+ 
+      const index = tabs.findIndex(t => t.id === activeTabId);
+
+      tabs.splice(index, 1);
+
+      activeTabId = tabs[Math.max(index - 1, 0)].id;
+
+      localStorage.setItem('tabs', JSON.stringify(tabs));
+
+      localStorage.setItem('activeTabId', activeTabId);
+
+      renderTabs();
+
+      renderEditor();
+
+    }
+
+    // clearAllData関数は削除しました
+
+    function renameTab(tabId) {
+
+      const newName = prompt('新しいタブ名を入力してください:');
+
+      if (newName && newName.trim()) {
+
+        const tab = tabs.find(t => t.id === tabId);
+
+        tab.title = newName.trim();
+
+        localStorage.setItem('tabs', JSON.stringify(tabs));
+
+        renderTabs();
+
+      }
+
+    }
+
+    // ▼▼▼ 名前をつけて保存機能 ▼▼▼
+
+    function exportData() {
+
+      saveContent(); 
+
+      const defaultName = "memo_backup";
+
+      let fileName = prompt("保存するファイル名を入力してください（拡張子不要）", defaultName);
+
+      if (fileName === null) return;
+
+      if (fileName.trim() === "") fileName = defaultName;
+
+      if (!fileName.endsWith(".json")) {
+
+        fileName += ".json";
+
+      }
+
+      const dataStr = JSON.stringify(tabs, null, 2);
+
+      const blob = new Blob([dataStr], { type: "application/json" });
+
+      const url = URL.createObjectURL(blob);
+ 
+      const a = document.createElement('a');
+
+      a.href = url;
+
+      a.download = fileName;
+
+      a.click();
+
+      URL.revokeObjectURL(url);
+
+    }
+
+    function triggerImport() {
+
+      document.getElementById('fileInput').click();
+
+    }
+
+    function importData(input) {
+
+      const file = input.files[0];
+
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+
+        try {
+
+          const importedTabs = JSON.parse(e.target.result);
+
+          if (!Array.isArray(importedTabs)) throw new Error('形式が不正です');
+ 
+          if(confirm('現在のデータを削除して、ファイルの内容で上書きしますか？')) {
+
+            tabs = importedTabs;
+
+            activeTabId = tabs[0].id;
+ 
+            localStorage.setItem('tabs', JSON.stringify(tabs));
+
+            localStorage.setItem('activeTabId', activeTabId);
+ 
+            renderTabs();
+
+            renderEditor();
+
+            alert('復元が完了しました！');
+
+          }
+
+        } catch (err) {
+
+          alert('ファイルの読み込みに失敗しました。');
+
+        }
+
+        input.value = '';
+
+      };
+
+      reader.readAsText(file);
+
+    }
+
+    // 初期描画
+
+    renderTabs();
+
+    renderEditor();
+</script>
+</body>
+</html>
+ 
