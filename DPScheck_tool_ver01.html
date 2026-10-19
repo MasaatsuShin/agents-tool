@@ -1,0 +1,455 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DPS文字チェックツール（Simple版）</title>
+<style>
+:root{--dell-blue:#0076CE;--dell-dark:#003B64;--dell-light:#E8F4FD;--ok:#0D7C3F;--ok-bg:#E6F5EC;--ng:#C41E3A;--ng-bg:#FCEAEE;--warn:#B8860B;--warn-bg:#FFF8E7;--border:#D4DDE5;--bg:#F4F7FA;--card:#FFF;--text:#1D2939;--muted:#667085;--card-shadow:0 1px 4px rgba(0,59,100,.08);--card-hover:0 2px 8px rgba(0,59,100,.12);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:20px;max-width:940px;margin:0 auto;}
+h1{font-size:1.25rem;color:var(--dell-dark);margin-bottom:2px;display:flex;align-items:center;gap:10px;}
+h1 .logo{width:28px;height:28px;background:var(--dell-blue);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.85rem;font-weight:800;}
+.subtitle{font-size:.8rem;color:var(--muted);margin-bottom:18px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:12px;box-shadow:var(--card-shadow);transition:box-shadow .2s;}.card:hover{box-shadow:var(--card-hover);}
+.card-title{font-size:.9rem;font-weight:700;color:var(--dell-dark);margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+textarea{width:100%;height:130px;border:2px dashed var(--dell-blue);border-radius:6px;padding:10px;font-size:.85rem;font-family:'Consolas','Meiryo',monospace;resize:vertical;background:var(--dell-light);color:var(--text);}
+textarea:focus{outline:none;border:2px solid var(--dell-blue);background:#fff;box-shadow:0 0 0 3px rgba(0,118,206,.12);}
+input[type="text"]{background:#FAFBFC;color:var(--text);}input[type="text"]:focus{outline:none;border-color:var(--dell-blue);box-shadow:0 0 0 3px rgba(0,118,206,.12);}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 20px;border:none;border-radius:6px;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .15s;}
+.btn-primary{background:var(--dell-blue);color:#fff;}.btn-primary:hover{background:var(--dell-dark);}
+.btn-ok{background:var(--ok);color:#fff;}.btn-ok:hover{background:#0A6333;}
+.btn-sm{padding:5px 12px;font-size:.76rem;border-radius:5px;}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted);}.btn-outline:hover{border-color:var(--dell-blue);color:var(--dell-blue);background:var(--dell-light);}
+.btn-group{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.btn-copied{background:var(--ok);color:#fff;pointer-events:none;}
+.btn-undo{background:#6C757D;color:#fff;}.btn-undo:hover{background:#5a6268;}.btn-undo:disabled{opacity:.4;cursor:not-allowed;}
+.field-row{display:grid;grid-template-columns:118px 1fr auto;gap:8px;align-items:center;margin-bottom:7px;}
+.field-row label{font-size:.8rem;font-weight:600;color:var(--muted);white-space:nowrap;}
+.field-row input[type="text"]{width:100%;border:1px solid var(--border);border-radius:5px;padding:7px 10px;font-size:.85rem;font-family:'Consolas','Meiryo',monospace;transition:border-color .15s;}
+.field-row input.ng{border-color:var(--ng);background:var(--ng-bg);}.field-row input.ok{border-color:var(--ok);background:var(--ok-bg);}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.7rem;font-weight:700;white-space:nowrap;}
+.badge-ok{background:var(--ok-bg);color:var(--ok);}.badge-ng{background:var(--ng-bg);color:var(--ng);}.badge-warn{background:var(--warn-bg);color:var(--warn);}
+.counter{font-size:.76rem;color:var(--muted);white-space:nowrap;min-width:140px;text-align:right;display:flex;align-items:center;gap:6px;justify-content:flex-end;}
+.counter .bar{display:inline-block;height:7px;border-radius:4px;vertical-align:middle;margin-right:4px;}
+.combined-counter{background:var(--dell-light);border-radius:6px;padding:6px 14px;margin:4px 0 10px;font-size:.8rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;}
+.char-detail{font-size:.75rem;color:var(--muted);margin-left:126px;margin-bottom:5px;}
+.fix-note{font-size:.72rem;color:var(--warn);margin-left:126px;margin-bottom:5px;font-weight:500;}
+.prohibited-item{display:inline-flex;align-items:center;gap:3px;background:var(--ng-bg);border-radius:4px;padding:2px 8px;margin:2px;font-size:.78rem;}
+.example-text{background:#F8FAFB;border:1px solid var(--border);border-radius:5px;padding:10px;font-size:.74rem;color:var(--muted);font-family:'Consolas','Meiryo',monospace;white-space:pre-line;margin-top:4px;line-height:1.7;}
+.example-label{font-size:.74rem;font-weight:700;color:var(--dell-blue);margin:10px 0 2px;display:block;}
+.example-hint{font-size:.7rem;color:var(--dell-blue);font-style:italic;margin-bottom:4px;}
+.section-divider{border:none;border-top:1px solid #E8ECF0;margin:12px 0;}
+.help-toggle{font-size:.76rem;color:var(--dell-blue);cursor:pointer;font-weight:500;}.help-toggle:hover{text-decoration:underline;}
+.help-content{display:none;margin-top:6px;}.help-content.show{display:block;}
+.strip-banner{background:var(--dell-light);color:var(--dell-blue);font-size:.76rem;padding:6px 14px;border-radius:5px;margin-bottom:10px;display:none;border-left:3px solid var(--dell-blue);}
+.input-area{background:var(--dell-light);border:1px solid rgba(0,118,206,.15);border-radius:6px;padding:12px;margin:8px 0;}
+.parsed-result{background:var(--ok-bg);border-radius:5px;padding:8px 12px;margin:8px 0;font-size:.8rem;font-family:'Consolas','Meiryo',monospace;display:none;border-left:3px solid var(--ok);}
+.inst-hint{font-size:.73rem;color:var(--muted);margin-left:126px;margin-bottom:4px;}
+.inst-preview{font-size:.8rem;font-family:'Consolas','Meiryo',monospace;color:var(--dell-blue);margin-left:126px;margin-bottom:6px;font-weight:500;}
+.inst-presets{display:flex;flex-wrap:wrap;gap:5px;margin-left:126px;margin-bottom:8px;}
+.inst-presets button{font-size:.7rem;padding:3px 10px;border:1px solid var(--border);border-radius:4px;background:#fff;cursor:pointer;color:var(--text);transition:all .15s;}.inst-presets button:hover{background:var(--dell-light);border-color:var(--dell-blue);color:var(--dell-blue);}
+.copy-area{background:#FAFBFC;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.copy-row{display:grid;grid-template-columns:108px 1fr 56px;align-items:center;border-bottom:1px solid #EEF1F5;font-size:.83rem;}.copy-row:last-child{border-bottom:none;}
+.copy-row .cl{padding:9px 10px;font-weight:600;color:var(--muted);font-size:.72rem;}
+.copy-row .cv{padding:9px 10px;font-family:'Consolas','Meiryo',monospace;word-break:break-all;min-height:36px;}
+.copy-row .cv.empty{color:var(--muted);font-style:italic;opacity:.4;font-size:.78rem;}
+.copy-row .cb{padding:4px 6px;text-align:center;}
+.copy-btn2{font-size:.68rem;cursor:pointer;background:var(--dell-blue);color:#fff;border:none;border-radius:3px;padding:4px 10px;white-space:nowrap;transition:background .15s;}.copy-btn2:hover{background:var(--dell-dark);}
+.diff-row{font-size:.71rem;color:var(--warn);padding:3px 10px 6px 118px;border-bottom:1px solid #EEF1F5;background:var(--warn-bg);font-weight:500;}
+.diff-from{color:var(--ng);font-weight:700;text-decoration:line-through;}.diff-to{color:var(--ok);font-weight:700;}
+.status-summary{font-size:.76rem;margin-left:auto;padding:3px 12px;border-radius:999px;font-weight:700;}
+.tip{position:relative;cursor:help;border-bottom:1px dotted var(--muted);}.tip:hover::after{content:attr(data-tip);position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:var(--dell-dark);color:#fff;padding:5px 12px;border-radius:4px;font-size:.68rem;white-space:nowrap;z-index:100;font-weight:400;}
+.section-desc{font-size:.76rem;color:var(--dell-blue);margin-bottom:12px;padding:6px 12px;background:var(--dell-light);border-radius:5px;border-left:3px solid var(--dell-blue);}
+.area-hint{font-size:.72rem;color:var(--muted);margin:4px 0 0 126px;}
+.warn-card{background:#FFFBF0;border:1px solid rgba(184,134,11,.25);border-radius:8px;padding:16px;margin-bottom:12px;display:none;}
+.warn-card .card-title{color:var(--warn);}
+.warn-item{display:flex;align-items:flex-start;gap:6px;padding:4px 0;font-size:.78rem;color:var(--warn);font-weight:500;}
+.phone-type{font-size:.68rem;color:var(--dell-blue);background:var(--dell-light);padding:1px 8px;border-radius:3px;margin-left:4px;}
+.undo-banner{background:#E8F4FD;color:var(--dell-dark);font-size:.78rem;padding:8px 14px;border-radius:5px;margin-bottom:10px;display:none;border-left:3px solid #6C757D;font-weight:500;}
+.excluded-card{background:#F8F9FA;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px;display:none;}
+.excluded-card .card-title{color:var(--muted);}
+.excluded-item{padding:4px 8px;margin:2px 0;font-size:.76rem;color:var(--muted);font-family:'Consolas','Meiryo',monospace;background:#F0F2F5;border-radius:4px;word-break:break-all;}
+.inline-presets{flex-wrap:wrap;gap:5px;margin:6px 0 10px 126px;display:none;}
+.inline-presets.show{display:flex;}
+.inline-presets button{font-size:.72rem;padding:3px 10px;border:1px solid var(--border);border-radius:4px;background:#fff;cursor:pointer;color:var(--text);transition:all .15s;}.inline-presets button:hover{background:var(--dell-light);border-color:var(--dell-blue);color:var(--dell-blue);}
+.format-hint{font-size:.72rem;color:var(--dell-blue);padding:6px 12px;margin-bottom:8px;background:var(--dell-light);border-radius:5px;line-height:1.6;}
+@media(max-width:600px){.field-row{grid-template-columns:1fr;}.counter{justify-content:flex-start;min-width:auto;margin-top:2px;}.combined-counter{flex-direction:column;gap:4px;}.copy-row{grid-template-columns:86px 1fr 48px;}.char-detail,.fix-note,.inst-hint,.inst-preview,.inst-presets,.area-hint,.inline-presets{margin-left:0;}}
+</style>
+</head>
+<body>
+<h1><div class="logo">D</div> DPS文字チェックツール <span style="font-size:.68rem;color:var(--muted);font-weight:400;margin-left:4px;">Simple</span></h1>
+<p class="subtitle">バイト数・文字数・禁止文字をチェック＆半角・全角等を整形します</p>
+<div class="card">
+<div class="card-title">📋 一括入力</div>
+<div class="format-hint">💡 下記どちらの形式でも自動振り分けされます<br>　・ラベル付き → 会社名：○○ / 担当者：△△ / 電話：xxx<br>　・ラベルなし → ○○株式会社 / 山田太郎 / 011-xxx-xxxx</div>
+<span class="help-toggle" onclick="toggleHelp()">▶ 入力例・使い方を見る</span>
+<div class="help-content" id="helpContent">
+<span class="example-label">【パターン1】ラベル付き</span>
+<span class="example-hint">✏️ ㈱→(株)、髙﨑→高崎、全角数字→半角、ハイフン除去、住所分割、部署名分離が自動</span>
+<div class="example-text">郵便番号：103-0002
+住所：東京都中央区日本橋馬喰町1-2-34ザ・パークレックス日本橋馬喰町4F
+法人名：デル・テクノロジーズ㈱
+担当者：ITｿｰﾘｭｰｼｮﾝ部 髙﨑 花子 ﾀｶｻｷ ハナコ 様
+電話番号1：03-1234-5678
+電話番号2：080－9876-５４３２</div>
+<span class="example-label" style="margin-top:14px;">【パターン2】ラベルなし入力</span>
+<span class="example-hint">⚡ ラベルがなくても自動で判別して振り分けます</span>
+<div class="example-text">デル・テクノロジーズ
+営業部 山田 太郎 やまだ たろう
+03-4413-1515/070 1111 8888
+100-0001東京都千代田区千代田1-1 パレスビル5F</div>
+<span class="example-label" style="margin-top:14px;">【パターン3】省略ラベル＋住所2行</span>
+<span class="example-hint">⚡ 省略ラベルも認識。住所の2行目（建物名）も自動結合します</span>
+<div class="example-text">会社：日本コンセントリクス(株)
+名前：営業部 山田 太郎/ﾔﾏﾀﾞ ﾀﾛｳ
+電話：011-1111-1234/07011112222
+郵便：060-0003
+住所：北海道札幌市中央区北三条西4丁目1-1
+　　　日本生命札幌ビル88F</div>
+<span class="example-label" style="margin-top:14px;">【パターン4】メールのヒアリング情報</span>
+<span class="example-hint">⚡ 番号付き行・※コメント行・全角半角混在もそのまま貼り付けOK</span>
+<div class="example-text">1.会社名：  日本ｺﾝｾﾝﾄﾘｸｽ株式会社
+2.部署名：  ｶｽﾀﾏｰｻｰﾋﾞｽ第2統括部
+3.お名前（フルネーム）：  山田 太郎
+  フリガナ：  ﾔﾏﾀﾞ ﾀﾛｳ
+4.住所：〒060-0003北海道札幌市中央区北三条西4丁目1-1
+        日本生命&住友生命&太陽生命&朝日生命札幌ﾋﾞﾙ88F
+  ※交換用部品の発送先になります。
+  ※建物名がある場合は、ご記入ください。
+5.電話番号  01111111234</div>
+<span class="example-label" style="margin-top:14px;">【ショートカットキー】</span>
+<div class="example-text">Ctrl+Enter     … 振り分け＆整形を実行
+Ctrl+Z         … 元に戻す
+Ctrl+Shift+C   … 全項目コピー</div>
+</div>
+<textarea id="bulkInput" placeholder="ここにまとめて貼り付け… (Ctrl+Enter で実行)&#10;ラベル付き・ラベルなし どちらでもOK"></textarea>
+<div class="btn-group">
+<button class="btn btn-primary" onclick="parseBulk()">🔄 振り分け＆整形</button>
+<button class="btn btn-undo" id="undoBtn" onclick="undo()" disabled>↩ 元に戻す</button>
+<button class="btn btn-outline" onclick="clearAll()">🗑 全クリア</button>
+</div>
+</div>
+<div class="card" id="checkCard">
+<div class="card-title">✏️ データチェック <span class="status-summary" id="statusSummary"></span></div>
+<div class="section-desc">📝 一括入力から自動振り分けされた結果を確認・編集できます。各項目に直接入力もOKです</div>
+<span class="help-toggle" onclick="toggleCheckHelp()">▶ 使い方を見る</span>
+<div class="help-content" id="checkHelpContent">
+<span class="example-label">【使い方1】直接入力</span>
+<span class="example-hint">各項目に値を入力するだけで、バイト数・文字数をリアルタイムチェック</span>
+<div class="example-text">例）法人名欄に「日本ｺﾝｾﾝﾄﾘｸｽ株式会社」→ 即座に「26/40B OK」と表示</div>
+<span class="example-label" style="margin-top:14px;">【使い方2】担当者まとめ → 分割</span>
+<span class="example-hint">部署・氏名・ﾌﾘｶﾞﾅをまとめて貼り付け →「📍 分割」で自動振り分け</span>
+<div class="example-text">例）「営業部 山田 太郎 ﾔﾏﾀﾞ ﾀﾛｳ」→ 部署・氏名・ﾌﾘｶﾞﾅに分離</div>
+<span class="example-label" style="margin-top:14px;">【使い方3】住所まとめ → 住所を分割</span>
+<span class="example-hint">〒・住所をまとめて貼り付け →「📍 住所を分割」で自動振り分け</span>
+<div class="example-text">例）「060-0003北海道札幌市中央区北三条西4丁目1-1」→ 郵便番号・都道府県・市区町村・住所に分離</div>
+<span class="example-label" style="margin-top:14px;">【使い方4】文字数NGの場合</span>
+<span class="example-hint">⚡ NGの項目にインラインプリセットボタンが自動表示されます</span>
+<div class="example-text">⚡ 部署名→法人名末尾 ── 部署名を法人名の末尾に移動
+⚡ Line1末尾→Line2先頭に移動 ── Address Line1の末尾をLine2に移動
+⚡ 「/」で部署分離する ── 氏名に含まれる「/」で部署と氏名を分離</div>
+</div>
+<div class="strip-banner" id="stripBanner"></div>
+<div class="undo-banner" id="undoBanner"></div>
+<div class="field-row"><label><span class="tip" data-tip="全角=2B 半角=1B">法人名</span></label><input type="text" id="fCompany" oninput="validate()" placeholder="40バイトまで"><div class="counter" id="cCompany">0/40B</div></div>
+<div class="char-detail" id="dCompany"></div><div class="fix-note" id="fixCompany"></div><hr class="section-divider">
+<div class="input-area">
+<div style="font-weight:700;font-size:.85rem;color:var(--dell-dark);margin-bottom:6px;">👤 担当者</div>
+<div class="field-row"><label>担当者まとめ</label><input type="text" id="fPersonFull" placeholder="営業部 山田 太郎 やまだ たろう"><button class="btn btn-sm btn-primary" onclick="parsePerson()">📍 分割</button></div>
+<div class="area-hint">💡 部署・氏名・ﾌﾘｶﾞﾅをまとめて貼り付け →「分割」で各項目に振り分け</div>
+<div class="parsed-result" id="parsedPerson"></div>
+</div>
+<div class="field-row"><label>部署名</label><input type="text" id="fDept" oninput="validate()" placeholder="空欄可"><div class="counter" id="cDept">0B</div></div><div class="fix-note" id="fixDept"></div>
+<div class="field-row"><label>氏名</label><input type="text" id="fName" oninput="validate()" placeholder="氏名"><div class="counter" id="cName">0B</div></div><div class="fix-note" id="fixName"></div>
+<div class="field-row"><label>ﾌﾘｶﾞﾅ</label><input type="text" id="fKana" oninput="validate()" placeholder="ﾔﾏﾀﾞ ﾀﾛｳ（ひらがな・全角カナも自動変換）"><div class="counter" id="cKana">0B</div></div><div class="fix-note" id="fixKana"></div>
+<div class="combined-counter" id="cCombined"><span><span class="tip" data-tip="3項目合計で35バイトまで">部署+氏名+ｶﾅ</span>：0/35B</span><span class="badge badge-ok">OK</span></div>
+<div class="inline-presets" id="presetsName"></div>
+<hr class="section-divider">
+<div class="field-row"><label>電話番号1</label><input type="text" id="fTel1" oninput="validate()" placeholder="0312345678（ハイフン自動除去）"><div class="counter" id="cTel1"></div></div>
+<div class="field-row"><label>電話番号2</label><input type="text" id="fTel2" oninput="validate()" placeholder="09012345678（ハイフン自動除去）"><div class="counter" id="cTel2"></div></div><hr class="section-divider">
+<div class="input-area">
+<div style="font-weight:700;font-size:.85rem;color:var(--dell-dark);margin-bottom:6px;">🏠 住所</div>
+<div class="field-row"><label>住所まとめ</label><input type="text" id="fAddrFull" placeholder="〒・住所をまとめて貼り付け"><button class="btn btn-sm btn-primary" onclick="parseAddress()">📍 住所を分割</button></div>
+<div class="area-hint">💡 〒・住所をまとめて貼り付け →「住所を分割」で各項目に振り分け</div>
+<div class="parsed-result" id="parsedResult"></div>
+</div>
+<div class="field-row"><label>Postal Code</label><input type="text" id="fZip" oninput="validate()" placeholder="xxx-xxxx"><div class="counter" id="cZip"></div></div>
+<div class="field-row"><label>State</label><input type="text" id="fState" oninput="validate()" placeholder="都道府県"><div class="counter" id="cState"></div></div>
+<div class="field-row"><label>City</label><input type="text" id="fCity" oninput="validate()" placeholder="市区町村"><div class="counter" id="cCity"></div></div>
+<div class="field-row"><label><span class="tip" data-tip="City+Line1の合計22文字まで">Address Line1</span></label><input type="text" id="fAddr1" oninput="validate()" placeholder="22文字まで"><div class="counter" id="cAddr1">0/22字</div></div><div class="char-detail" id="dAddr1"></div>
+<div class="field-row"><label><span class="tip" data-tip="全角半角問わず22文字まで">Address Line2</span></label><input type="text" id="fAddr2" oninput="validate()" placeholder="22文字まで"><div class="counter" id="cAddr2">0/22字</div></div><div class="char-detail" id="dAddr2"></div>
+<div class="inline-presets" id="presetsAddr"></div>
+<hr class="section-divider">
+<div class="field-row"><label><span class="tip" data-tip="$〜$の間15文字（$除く）">Instructions</span></label><input type="text" id="fInst" oninput="validate()" placeholder="AC電源ｺｰﾄﾞ同梱有 → 自動で$〜$付加"><div class="counter" id="cInst"></div></div>
+<div class="inst-hint">※ $は自動付加。中身15文字以内。</div>
+<div class="inst-presets"><span style="font-size:.7rem;color:var(--muted);margin-right:4px;">よく使う：</span><button onclick="setInst('AC電源ｺｰﾄﾞ同梱有')">AC電源ｺｰﾄﾞ同梱有</button><button onclick="setInst('2台同時引取')">2台同時引取</button></div>
+<div class="inst-preview" id="instPreview"></div>
+</div>
+<div class="warn-card" id="warnCard"><div class="card-title" style="color:var(--warn);">💡 注意事項</div><div id="warnList"></div></div>
+<div class="card" id="prohibitedCard" style="display:none;"><div class="card-title" style="color:var(--ng);">⚠️ 禁止文字検出</div><div id="prohibitedList"></div></div>
+<div class="card" id="copyCard"><div class="card-title">📋 コピー用まとめ（整形済み）</div><div class="copy-area" id="copyArea"></div><div class="btn-group" style="margin-top:12px;"><button class="btn btn-primary" id="copyAllBtn" onclick="copyAllWithLabels()">📋 全項目コピー</button></div><div id="copyNotice" style="display:none;margin-top:6px;font-size:.76rem;color:var(--ok);font-weight:500;">✅ コピーしました</div></div>
+<div class="excluded-card" id="excludedCard"><div class="card-title" style="color:var(--muted);">📋 未振り分け・除外情報</div><div id="excludedList"></div></div>
+<script>
+var DS=String.fromCharCode(36);
+function escH(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function $(id){return document.getElementById(id);}
+function setInst(v){$('fInst').value=v;validate();}
+function resetCopyBtn(){var b=$('copyAllBtn');b.textContent='📋 全項目コピー';b.className='btn btn-primary';}
+var MAX_INPUT=10000;
+var excludedLines=[];
+document.addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='Enter'){e.preventDefault();parseBulk();return;}if(e.ctrlKey&&e.shiftKey&&(e.key==='C'||e.key==='c')){e.preventDefault();copyAllWithLabels();return;}if(e.ctrlKey&&(e.key==='Z'||e.key==='z')&&!e.shiftKey){var ae=document.activeElement;if(!ae||(ae.tagName!=='TEXTAREA'&&ae.tagName!=='INPUT')){e.preventDefault();undo();return;}}if(e.key==='Escape')return;});
+var PROHIBITED={'髙':'高','﨑':'崎','濵':'浜','濱':'浜','邉':'辺','邊':'辺','齋':'斎','齊':'斉','國':'国','壽':'寿','廣':'広','櫻':'桜','萬':'万','燈':'灯','寳':'宝','榮':'栄','驛':'駅','傳':'伝','圓':'円','德':'徳','惠':'恵','悅':'悦','靜':'静','顯':'顕','黑':'黒','增':'増','實':'実','學':'学','藝':'芸','橫':'横','從':'従','禮':'礼','祿':'禄','綠':'緑','緣':'縁','鄕':'郷','醫':'医','飮':'飲','餠':'餅','①':'1','②':'2','③':'3','④':'4','⑤':'5','⑥':'6','⑦':'7','⑧':'8','⑨':'9','⑩':'10','⑪':'11','⑫':'12','⑬':'13','⑭':'14','⑮':'15','⑯':'16','⑰':'17','⑱':'18','⑲':'19','⑳':'20','Ⅰ':'1','Ⅱ':'2','Ⅲ':'3','Ⅳ':'4','Ⅴ':'5','Ⅵ':'6','Ⅶ':'7','Ⅷ':'8','Ⅸ':'9','Ⅹ':'10','Ⅺ':'11','Ⅻ':'12','ⅰ':'1','ⅱ':'2','ⅲ':'3','ⅳ':'4','ⅴ':'5','ⅵ':'6','ⅶ':'7','ⅷ':'8','ⅸ':'9','ⅹ':'10','㊀':'1','㊁':'2','㊂':'3','㊃':'4','㊄':'5','㊅':'6','㊆':'7','㊇':'8','㊈':'9','㊉':'10','㈱':'(株)','㈲':'(有)','㈻':'(学)','㈳':'(社)','㈶':'(財)','㈼':'(監)','㈾':'(資)','㈿':'(協)','㍻':'平成','㍼':'昭和','㍽':'大正','㍾':'明治','～':'~','\u301C':'~','‐':'-','―':'-','－':'-','＇':"'",'＂':'"','㌔':'km','㌢':'cm','㌘':'g','㌧':'t','㌃':'a'};
+var KANA_MAP={'ガ':'ｶﾞ','ギ':'ｷﾞ','グ':'ｸﾞ','ゲ':'ｹﾞ','ゴ':'ｺﾞ','ザ':'ｻﾞ','ジ':'ｼﾞ','ズ':'ｽﾞ','ゼ':'ｾﾞ','ゾ':'ｿﾞ','ダ':'ﾀﾞ','ヂ':'ﾁﾞ','ヅ':'ﾂﾞ','デ':'ﾃﾞ','ド':'ﾄﾞ','バ':'ﾊﾞ','ビ':'ﾋﾞ','ブ':'ﾌﾞ','ベ':'ﾍﾞ','ボ':'ﾎﾞ','パ':'ﾊﾟ','ピ':'ﾋﾟ','プ':'ﾌﾟ','ペ':'ﾍﾟ','ポ':'ﾎﾟ','ヴ':'ｳﾞ','ア':'ｱ','イ':'ｲ','ウ':'ｳ','エ':'ｴ','オ':'ｵ','カ':'ｶ','キ':'ｷ','ク':'ｸ','ケ':'ｹ','コ':'ｺ','サ':'ｻ','シ':'ｼ','ス':'ｽ','セ':'ｾ','ソ':'ｿ','タ':'ﾀ','チ':'ﾁ','ツ':'ﾂ','テ':'ﾃ','ト':'ﾄ','ナ':'ﾅ','ニ':'ﾆ','ヌ':'ﾇ','ネ':'ﾈ','ノ':'ﾉ','ハ':'ﾊ','ヒ':'ﾋ','フ':'ﾌ','ヘ':'ﾍ','ホ':'ﾎ','マ':'ﾏ','ミ':'ﾐ','ム':'ﾑ','メ':'ﾒ','モ':'ﾓ','ヤ':'ﾔ','ユ':'ﾕ','ヨ':'ﾖ','ラ':'ﾗ','リ':'ﾘ','ル':'ﾙ','レ':'ﾚ','ロ':'ﾛ','ワ':'ﾜ','ヲ':'ｦ','ン':'ﾝ','ァ':'ｧ','ィ':'ｨ','ゥ':'ｩ','ェ':'ｪ','ォ':'ｫ','ッ':'ｯ','ャ':'ｬ','ュ':'ｭ','ョ':'ｮ','ー':'ｰ','　':' '};
+function sanitize(s){if(!s)return s;return s.replace(/[\u200B\u200C\u200D\uFEFF\u00AD\u2060]/g,'').replace(/[\s\u3000]+/g,' ').trim();}
+function toHK(s){var r='';for(var i=0;i<s.length;i++)r+=KANA_MAP[s[i]]||s[i];return r;}
+function toKata(s){return s.replace(/[\u3041-\u3096]/g,function(c){return String.fromCharCode(c.charCodeAt(0)+0x60);});}
+function toHA(s){return s.replace(/[Ａ-Ｚａ-ｚ０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0);});}
+function toHS(s){return s.replace(/（/g,'(').replace(/）/g,')').replace(/＆/g,'&').replace(/＠/g,'@').replace(/＃/g,'#').replace(/％/g,'%').replace(/＋/g,'+').replace(/＝/g,'=').replace(/＿/g,'_').replace(/／/g,'/').replace(/＼/g,'\\').replace(/｜/g,'|').replace(/＊/g,'*').replace(/！/g,'!').replace(/？/g,'?').replace(/．/g,'.').replace(/，/g,',').replace(/・/g,'･');}
+function rmH(s){return s.replace(/[\-\u2010-\u2015\u2212\uFF0D\s\u3000]/g,'');}
+function rP(s){var r='';for(var i=0;i<s.length;i++)r+=PROHIBITED[s[i]]||s[i];return r;}
+function fP(s){var f=[];for(var i=0;i<s.length;i++){var c=s[i];if(PROHIBITED[c]&&!f.find(function(x){return x.from===c;}))f.push({from:c,to:PROHIBITED[c]});}return f;}
+function norm(v){return toHS(toHA(toHK(rP(sanitize(v)))));}
+function normName(v){return toHS(toHA(rP(sanitize(v))));}
+function normKana(v){return toHS(toHA(toHK(toKata(rP(sanitize(v))))));}
+function normT(v){return rmH(norm(v));}
+function normZ(v){if(!v)return'';var s=sanitize(v);var d=toHA(s).replace(/\D/g,'');if(d.length===7)return d.slice(0,3)+'-'+d.slice(3);return toHA(s).replace(/[^0-9\-]/g,'');}
+function getInstInner(v){if(!v)return'';return v.replace(/^\$+/,'').replace(/\$+$/,'').trim();}
+function normInst(v){var i=getInstInner(sanitize(v));if(!i)return'';return DS+norm(i)+DS;}
+function isKanaLike(s){return /^[\u3041-\u3096ァ-ヶー・\s　\uFF65-\uFF9Fｰ\-・･]+$/.test(s);}
+function isFullKataOnly(s){return /^[ァ-ヶー]+$/.test(s.replace(/[\s　]+/g,''));}
+function removeHonorific(s){return s.replace(/[\s　]*(様|さま|さん|殿|氏|御中)[\s　]*$/,'').trim();}
+function hasHonorific(s){return /[\s　]*(様|さま|さん|殿|氏|御中)[\s　]*$/.test(s);}
+function isNoneIndicator(v){var t=v.trim();return /^(なし|無し|ナシ|ﾅｼ|無|N\/?A|n\/?a|[\-ー―‐]+|不明)$/i.test(t);}
+function stripNote(v){if(!v)return v;return v.replace(/\s*※.*$/,'').trim();}
+function countSlashes(s){var c=0;for(var i=0;i<s.length;i++){if(s[i]==='/'||s[i]==='／')c++;}return c;}
+function isDeptLike(s){return /(?:部|科|課|室|係|局|所|院|本部|支店|支社|支部|工場|センター|ｾﾝﾀｰ|グループ|ｸﾞﾙｰﾌﾟ|チーム|ﾁｰﾑ|営業所|事業所|事務所|出張所)$/.test(s);}
+function extractParenKana(s){var m=s.match(/[（(]\s*([\u3041-\u3096ァ-ヶー・\s　\uFF65-\uFF9Fｰ\-・･]+)\s*[）)]/);if(m)return{kana:m[1].trim(),rest:s.replace(m[0],'').trim()};return{kana:'',rest:s};}
+function splitNameKanaFromParts(s){
+if(!s)return{name:'',kana:''};
+var pr=extractParenKana(s);
+if(pr.kana)return{name:pr.rest.trim(),kana:pr.kana};
+var p=s.split(/[\s　]+/);
+if(p.length<=1)return{name:s,kana:''};
+var np=[],kp=[],ks=false;
+for(var i=0;i<p.length;i++){
+if(isKanaLike(p[i])){ks=true;kp.push(p[i]);}
+else{if(ks){kp=[];ks=false;}np.push(p[i]);}}
+if(!kp.length||!np.length){
+var np2=[],kp2=[];
+for(var j=0;j<p.length;j++){if(isKanaLike(p[j]))kp2.push(p[j]);else np2.push(p[j]);}
+if(kp2.length&&np2.length)return{name:np2.join(' '),kana:kp2.join(' ')};
+return{name:s,kana:''};}
+return{name:np.join(' '),kana:kp.join(' ')};}
+function splitNameKana(raw){
+var orig=removeHonorific(raw.trim());
+if(!orig)return{name:'',kana:''};
+var sc=countSlashes(orig);
+if(sc>=2)return{name:orig,kana:''};
+if(sc===1){
+var si=orig.indexOf('/');
+if(si<0)si=orig.indexOf('／');
+var before=orig.slice(0,si).trim();
+var after=orig.slice(si+1).trim();
+if(after&&isKanaLike(after.replace(/[\s　]+/g,''))){
+return{name:before,kana:after};}
+return{name:orig,kana:''};}
+return splitNameKanaFromParts(orig);}
+function splitDeptNameKana(raw){
+var s=removeHonorific(raw.trim());
+if(!s)return{dept:'',name:'',kana:''};
+var sc=countSlashes(s);
+if(sc>=2)return{dept:'',name:s,kana:''};
+if(sc===1){
+var si=s.indexOf('/');
+if(si<0)si=s.indexOf('／');
+var before=s.slice(0,si).trim();
+var after=s.slice(si+1).trim();
+if(isDeptLike(before)){
+var afterClean=after.replace(/[\s　]+/g,'');
+if(isKanaLike(afterClean)){
+return{dept:before,name:after,kana:''};}
+else{var nk=splitNameKanaFromParts(after);
+return{dept:before,name:nk.name,kana:nk.kana};}}
+else if(isKanaLike(after.replace(/[\s　]+/g,''))){
+return{dept:'',name:before,kana:after};}
+else{return{dept:'',name:s,kana:''};}}
+var kana='',pr=extractParenKana(s);
+if(pr.kana){kana=pr.kana;s=pr.rest;}
+var p=s.split(/[\s　]+/).filter(function(x){return x;});
+if(kana){
+var kc=kana.split(/[\s　]+/).filter(function(x){return x;}).length;
+if(kc<=1)return{dept:'',name:p.join(' '),kana:kana};
+if(p.length>kc)return{dept:p.slice(0,-kc).join(' '),name:p.slice(-kc).join(' '),kana:kana};
+return{dept:'',name:p.join(' '),kana:kana};}
+var sp=splitNameKanaFromParts(removeHonorific(raw.trim()));
+if(sp.kana){
+var nameParts=sp.name.split(/[\s　]+/).filter(function(x){return x;});
+var kanaParts=sp.kana.split(/[\s　]+/).filter(function(x){return x;});
+if(nameParts.length>kanaParts.length){
+return{dept:nameParts.slice(0,-kanaParts.length).join(' '),name:nameParts.slice(-kanaParts.length).join(' '),kana:sp.kana};}
+return{dept:'',name:sp.name,kana:sp.kana};}
+return{dept:'',name:s,kana:''};}
+function findCharDiffs(before,after){var diffs=[],allMaps={};for(var k in PROHIBITED)allMaps[k]=PROHIBITED[k];for(var k in KANA_MAP)if(k!=='　')allMaps[k]=KANA_MAP[k];allMaps['・']='･';for(var i=0;i<before.length;i++){var c=before[i];if(allMaps[c]&&!diffs.find(function(d){return d.from===c;}))diffs.push({from:c,to:allMaps[c]});}return diffs;}
+function diffHTML(diffs){return diffs.map(function(d){return '<span class="diff-from">'+escH(d.from)+'</span><span style="color:var(--ok);font-weight:700;">→</span><span class="diff-to">'+escH(d.to)+'</span>';}).join(' ');}
+var LP='[\\s\\u3000\\u200B\\uFEFF・•\\-\\*►▸◇◆▲△▼▽■□●○★☆>＞]*';
+var LKW=['会社名?|法人(団体)?名?|企業名?|会社|顧客名?|お客様名?','部署名?\\s*[・/／]\\s*(?:ご|御)?担当者名?(?:\\s*[（(][^）)]*[）)])?|部署名?|所属','(?:ご|御)?担当者?名?(?:\\s*[（(][^）)]*[）)])?|氏名|お?名前(?:\\s*[（(][^）)]*[）)])?|担当名?','フリガナ|ふりがな|カナ|かな|ﾌﾘｶﾞﾅ|担当者名?\\s*[（(]\\s*(?:よみ|読み|ヨミ|ﾖﾐ|フリ|ふり|カナ|かな)[^）)]*[）)]','郵便(番号)?|〒|ZIP','第?[一二1-2１２]?(電話|TEL)?(番号)?(?:\\s*[（(][^）)]*[）)])?|電話(番号)?(?:\\s*[（(][^）)]*[）)])?\\s*[12１２]?|電話\\s*1|TEL\\s*[12]?|携帯番号?','ご?住所\\s*[12１２]?|送付先|配送先|建物名?|ビル名?|[＠@]','Instructions?\\s*[>＞]?\\s*Field|Instructions?|ドライバーコメント|コメント','メールアドレス|ﾒｰﾙｱﾄﾞﾚｽ|Email|e-?mail|メール|ﾒｰﾙ|mail'];
+var LRES=LKW.map(function(kw){return new RegExp('^'+LP+'('+kw+')\\s*[：:]\\s*','i');});
+function sL(v){if(!v)return'';var r=v;for(var i=0;i<LRES.length;i++){var b=r;r=r.replace(LRES[i],'');if(r!==b)break;}if(/^[\s\u3000・•\-\*►▸]+$/.test(r))r='';return r;}
+function cB(s){var b=0;for(var i=0;i<s.length;i++){var c=s.charCodeAt(i);b+=(c<=0x7F||(c>=0xFF61&&c<=0xFF9F))?1:2;}return b;}
+function cC(s){return[...s].length;}
+function cH(s){var n=0;for(var i=0;i<s.length;i++){var c=s.charCodeAt(i);if(c<=0x7F||(c>=0xFF61&&c<=0xFF9F))n++;}return n;}
+var FI=['fCompany','fDept','fName','fKana','fTel1','fTel2','fZip','fState','fCity','fAddr1','fAddr2','fInst'];
+var FK=['company','dept','name','kana','tel1','tel2','zip','state','city','addr1','addr2','inst'];
+var FL=['法人名','部署名','氏名','ﾌﾘｶﾞﾅ','電話番号1','電話番号2','Postal Code','State','City','Address Line1','Address Line2','Instructions'];
+var preFixValues={};var lastNgCount=0;
+var PHONE_SEP_RE=/[\/／･・、，,]+/;
+var CORP_RE=/株式会社|\(株\)|㈱|有限会社|\(有\)|㈲|合同会社|\(同\)|医療法人|\(医\)|社会福祉法人|学校法人|㈻|一般社団法人|一般財団法人|公益社団法人|公益財団法人|協同組合|㈿|合資会社|㈾|合名会社|NPO法人|特定非営利活動法人|独立行政法人/;
+var SCHOOL_RE=/学校|学園|学院|大学|高校|中学|小学|幼稚園|保育園/;
+function isCorpOrSchool(val){var n=norm(val);return CORP_RE.test(n)||SCHOOL_RE.test(n);}
+var PREFS=['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'];
+var DES=['札幌','仙台','さいたま','千葉','横浜','川崎','相模原','新潟','静岡','浜松','名古屋','京都','大阪','堺','神戸','岡山','広島','北九州','福岡','熊本'];
+var PREF_CITY_MAP={'札幌':'北海道','仙台':'宮城県','さいたま':'埼玉県','千葉':'千葉県','横浜':'神奈川県','川崎':'神奈川県','相模原':'神奈川県','新潟':'新潟県','静岡':'静岡県','浜松':'静岡県','名古屋':'愛知県','京都':'京都府','大阪':'大阪府','堺':'大阪府','神戸':'兵庫県','岡山':'岡山県','広島':'広島県','北九州':'福岡県','福岡':'福岡県','熊本':'熊本県'};
+function validatePhone(num){var d=num.replace(/\D/g,'');if(!d)return null;var pats=[{re:/^0[5789]0/,len:11,label:'携帯'},{re:/^0120/,len:10,label:'ﾌﾘｰﾀﾞｲﾔﾙ'},{re:/^0800/,len:11,label:'ﾌﾘｰﾀﾞｲﾔﾙ'},{re:/^050/,len:11,label:'IP電話'},{re:/^0[1-9]/,len:10,label:'固定電話'}];for(var i=0;i<pats.length;i++){if(pats[i].re.test(d))return{ok:d.length===pats[i].len,label:pats[i].label,expected:pats[i].len,actual:d.length};}return{ok:false,label:'不明',expected:'?',actual:d.length};}
+function checkZipRange(zip){var d=zip.replace(/\D/g,'');if(d.length!==7)return{ok:false,msg:'7桁ではありません'};return{ok:true,msg:''};}
+function checkPrefCity(state,city){if(!state||!city)return null;for(var k in PREF_CITY_MAP){if(city.indexOf(k)===0||city.indexOf(k+'市')!==-1){var expected=PREF_CITY_MAP[k];if(state!==expected)return{ok:false,msg:'「'+city+'」は「'+expected+'」に属しますが、Stateが「'+state+'」になっています'};return{ok:true,msg:''};}}return null;}
+function checkSwapWarning(company,name){var w=[];if(company&&/^[\u4E00-\u9FFF]{1,4}\s[\u4E00-\u9FFF]{1,4}$/.test(company)&&!CORP_RE.test(company))w.push('法人名に人名が入っている可能性があります');if(name&&CORP_RE.test(name))w.push('氏名に法人名が入っている可能性があります');return w;}
+var BRE=/(?:ビル|ﾋﾞﾙ|マンション|ﾏﾝｼｮﾝ|タワー|ﾀﾜｰ|ハイツ|ﾊｲﾂ|コーポ|ｺｰﾎﾟ|アパート|ｱﾊﾟｰﾄ|レジデンス|パレス|プラザ|コート|メゾン|パーク|ﾊﾟｰｸ|ハイム|ﾊｲﾑ|荘|寮|会館|センター|ｾﾝﾀｰ|号棟|号室|棟|館|階|工場)/;
+function checkBuildingFloor(a1,a2){var combined=(a1||'')+(a2||'');if(!combined)return null;var hasBldg=BRE.test(combined);var hasFloor=/[0-9０-９]+\s*[FfＦｆ階]|[0-9０-９]+\s*号室/.test(combined);if(hasBldg&&!hasFloor)return'ビル名がありますが、階数・部屋番号がありません。確認してください';return null;}
+function checkRequired(c){var w=[];if(!c.company)w.push('法人名が空欄です');if(!c.name)w.push('氏名が空欄です');if(!c.tel1&&!c.tel2)w.push('電話番号が未入力です');if(!c.state&&!c.city&&!c.addr1)w.push('住所が未入力です');return w;}
+var undoStack=[];
+function saveUndo(label){var state={bulk:$('bulkInput').value,addrFull:$('fAddrFull').value,personFull:$('fPersonFull').value,label:label||''};FI.forEach(function(id){state[id]=$(id).value;});undoStack.push(state);if(undoStack.length>20)undoStack.shift();$('undoBtn').disabled=false;}
+function undo(){if(!undoStack.length)return;var state=undoStack.pop();FI.forEach(function(id){$(id).value=state[id]||'';});$('bulkInput').value=state.bulk||'';$('fAddrFull').value=state.addrFull||'';$('fPersonFull').value=state.personFull||'';$('undoBtn').disabled=undoStack.length===0;preFixValues={};resetCopyBtn();validate();var ub=$('undoBanner');ub.textContent='↩ 元に戻しました'+(state.label?' （'+state.label+'前の状態）':'');ub.style.display='block';clearTimeout(window._ubt);window._ubt=setTimeout(function(){ub.style.display='none';},4000);}
+function findBldgStart(s,idx){var p=idx;while(p>0){var ch=s[p-1];if(/[0-9０-９]/.test(ch))break;if(/[番地丁目条通号\-]/.test(ch))break;p--;}return p;}
+function splitAddr(s,cityLen){if(!s)return{a1:'',a2:''};var maxLen=22-cityLen;var parts=s.split(/[\s　]+/);if(parts.length>=2){for(var i=1;i<parts.length;i++){if(BRE.test(parts[i]))return{a1:parts.slice(0,i).join(' '),a2:parts.slice(i).join(' ')};}for(var i=1;i<parts.length;i++){if(/[0-9０-９]+\s*[FfＦｆ階]/.test(parts[i]))return{a1:parts.slice(0,i).join(' '),a2:parts.slice(i).join(' ')};}return{a1:parts.slice(0,-1).join(' '),a2:parts[parts.length-1]};}var bm=BRE.exec(s);if(bm){var p=findBldgStart(s,bm.index);if(p>0&&p<s.length)return{a1:s.slice(0,p),a2:s.slice(p)};}var fm=s.match(/([0-9０-９]+\s*[FfＦｆ階])$/);if(fm){var fi=s.length-fm[0].length;var p2=findBldgStart(s,fi);if(p2>0&&p2<s.length)return{a1:s.slice(0,p2),a2:s.slice(p2)};}if(cC(s)>maxLen){var matches=[];var re=/[0-9０-９]+(?:[番地号丁目\-][0-9０-９]*)*/g;var m;while((m=re.exec(s))!==null)matches.push({idx:m.index,end:m.index+m[0].length});for(var i=matches.length-1;i>=0;i--){var ep=matches[i].end;if(ep>0&&ep<s.length&&cC(s.slice(0,ep))<=maxLen)return{a1:s.slice(0,ep),a2:s.slice(ep)};}}return{a1:s,a2:''};}
+function pFA(raw){var s=raw.trim(),z='';var m1=s.match(/^[\s　]*〒?[\s　]*(\d{3}[\-\uFF0D]?\d{4})[\s　]?/);if(m1){z=m1[1];s=s.slice(m1[0].length).replace(/^[\s　]+/,'');}if(!z){var m2=s.match(/^[\s　]*〒?[\s　]*([０-９]{3}[ー\-\uFF0D]?[０-９]{4})[\s　]?/);if(m2){z=m2[1];s=s.slice(m2[0].length).replace(/^[\s　]+/,'');}}s=s.replace(/^[\s　]*〒[\s　]*/,'');var st='';for(var i=0;i<PREFS.length;i++){if(s.startsWith(PREFS[i])){st=PREFS[i];s=s.slice(st.length).trim();break;}}var ci='';for(var i=0;i<DES.length;i++){var dm=s.match(new RegExp('^('+DES[i]+'市.+?区)'));if(dm){ci=dm[1];s=s.slice(ci.length);break;}}if(!ci){var m1b=s.match(/^(.+?市)/),m2b=s.match(/^(.+?郡.+?[町村])/),m3b=s.match(/^(.+?区)/),m4b=s.match(/^(.+?[町村])/);if(m1b){ci=m1b[1];s=s.slice(ci.length);}else if(m2b){ci=m2b[1];s=s.slice(ci.length);}else if(m3b){ci=m3b[1];s=s.slice(ci.length);}else if(m4b){ci=m4b[1];s=s.slice(ci.length);}}s=s.trim();var r=splitAddr(s,cC(ci));return{zip:z,state:st,city:ci,addr1:r.a1,addr2:r.a2};}
+function parseAddress(){var r=$('fAddrFull').value.trim();if(!r)return;saveUndo('住所分割');var p=pFA(r);$('fZip').value=normZ(p.zip);$('fState').value=p.state;$('fCity').value=p.city;$('fAddr1').value=p.addr1;$('fAddr2').value=p.addr2;autoFixFields();$('parsedResult').style.display='block';$('parsedResult').textContent='✅ 分割完了';setTimeout(function(){$('parsedResult').style.display='none';},5000);resetCopyBtn();validate();}
+function parsePerson(){var r=$('fPersonFull').value.trim();if(!r)return;saveUndo('担当者分割');var sp=splitDeptNameKana(r);$('fDept').value=sp.dept||'';$('fName').value=sp.name||'';$('fKana').value=sp.kana||'';autoFixFields();$('parsedPerson').style.display='block';$('parsedPerson').textContent='✅ 分割完了';setTimeout(function(){$('parsedPerson').style.display='none';},5000);resetCopyBtn();validate();}
+function showFixNote(elId,before,after){var el=$(elId);if(!el)return;if(!before||before===after){el.textContent='';return;}var diffs=findCharDiffs(before,after);if(diffs.length){el.innerHTML='🔄 自動整形：'+diffHTML(diffs);}else if(before!==after){el.textContent='🔄 自動整形済み';}else{el.textContent='';}}
+function cleanLabels(){var d=false;for(var i=0;i<FI.length;i++){var el=$(FI[i]),r=el.value,c=sL(r);if(c!==r){el.value=c;d=true;}}if(d){$('stripBanner').textContent='⚡ ラベル自動除去・整形済み';$('stripBanner').style.display='block';clearTimeout(window._bt);window._bt=setTimeout(function(){$('stripBanner').style.display='none';},3000);}}
+function gR(){var f={};for(var i=0;i<FI.length;i++)f[FK[i]]=sL($(FI[i]).value);return f;}
+function gC(){var r=gR();return{company:norm(r.company),dept:norm(r.dept),name:normName(r.name),kana:normKana(r.kana),tel1:normT(r.tel1),tel2:normT(r.tel2),zip:normZ(r.zip),state:norm(r.state),city:norm(r.city),addr1:norm(r.addr1),addr2:norm(r.addr2),inst:normInst(r.inst)};}
+function autoFixFields(){preFixValues={};for(var i=0;i<FI.length;i++){var el=$(FI[i]),k=FK[i],b=el.value;preFixValues[k]=b;var a;if(k==='zip')a=normZ(b);else if(k==='tel1')a=normT(b);else if(k==='tel2'){a=isNoneIndicator(b)?b:normT(b);}else if(k==='inst'){var inner=getInstInner(b);a=inner?DS+norm(inner)+DS:'';}else if(k==='kana')a=normKana(b);else if(k==='name'){if(isFullKataOnly(b)&&b.trim()){a=b.trim();if(!$(FI[3]).value)$(FI[3]).value=normKana(b);}else{a=normName(b);}}else a=norm(b);if(a!==b)el.value=a;}}
+function barHTML(v,mx,ok){var p=Math.min(100,v/mx*100);var cl=ok?'var(--ok)':'var(--ng)';return '<span class="bar" style="width:'+p*0.6+'px;background:'+cl+'"></span>';}
+function updateInlinePresets(){var comp=$('fCompany').value,dept=$('fDept').value,name=$('fName').value,a1=$('fAddr1').value,a2=$('fAddr2').value,city=$('fCity').value;var compB=cB(norm(comp)),compRem=40-compB;var cl=cC(norm(city)),a1c=cC(norm(a1)),a1t=cl+a1c,a2c=cC(norm(a2));var dB=cB(norm(dept)),nB=cB(normName(name)),kB=cB(normKana($('fKana').value)),comB=dB+nB+kB,comOk=comB<=35;var a1ok=!a1||a1t<=22,a2ok=!a2||a2c<=22;var ps1=[];
+if(!comOk&&dept&&compRem>0)ps1.push({label:'部署名→法人名末尾',fn:function(){saveUndo('プリセット');$('fCompany').value=(comp?comp+' ':'')+dept;$('fDept').value='';validate();}});
+if(!comOk&&dept&&dept.includes(' ')){var dp=dept.split(' ');ps1.push({label:'「'+escH(dp[0])+'」→法人名',fn:function(){saveUndo('プリセット');$('fCompany').value=(comp?comp+' ':'')+dp[0];$('fDept').value=dp.slice(1).join(' ');validate();}});}
+if(name&&(name.indexOf('/')>=0||name.indexOf('／')>=0)){ps1.push({label:'「/」で部署分離する',fn:function(){saveUndo('プリセット');var si=name.indexOf('/');if(si<0)si=name.indexOf('／');$('fDept').value=name.slice(0,si).trim();$('fName').value=name.slice(si+1).trim();validate();}});}
+var el1=$('presetsName');if(ps1.length){el1.innerHTML=ps1.map(function(p,i){return '<button data-pi="'+i+'">⚡ '+escH(p.label)+'</button>';}).join('');el1.className='inline-presets show';el1.onclick=function(e){var b=e.target.closest('button');if(b){var idx=+b.dataset.pi;ps1[idx].fn();}};window._ps1=ps1;}else{el1.innerHTML='';el1.className='inline-presets';}
+var ps2=[];
+if(a1c>0&&!a1ok){var bestSplit=-1;for(var si=a1.length-1;si>0;si--){if(cC(a1.slice(0,si))+cl<=22){bestSplit=si;break;}}if(bestSplit>0)ps2.push({label:'Line1末尾→Line2先頭に移動',fn:function(){saveUndo('プリセット');var mv=a1.slice(bestSplit);$('fAddr1').value=a1.slice(0,bestSplit);$('fAddr2').value=mv+(a2?' '+a2:'');validate();}});}
+if(a2c>0&&!a2ok&&a1ok){var canMove=22-a1t;if(canMove>0)ps2.push({label:'Line2先頭→Line1末尾に移動',fn:function(){saveUndo('プリセット');var mv=a2.slice(0,canMove);$('fAddr1').value=a1+mv;$('fAddr2').value=a2.slice(canMove);validate();}});}
+if(a1c>0&&a1ok&&a2c<22)ps2.push({label:'Line1→Line2に全移動',fn:function(){saveUndo('プリセット');$('fAddr2').value=a1+(a2?' '+a2:'');$('fAddr1').value='';validate();}});
+var el2=$('presetsAddr');if(ps2.length){el2.innerHTML=ps2.map(function(p,i){return '<button data-pi="'+i+'">⚡ '+escH(p.label)+'</button>';}).join('');el2.className='inline-presets show';el2.onclick=function(e){var b=e.target.closest('button');if(b){var idx=+b.dataset.pi;ps2[idx].fn();}};window._ps2=ps2;}else{el2.innerHTML='';el2.className='inline-presets';}}
+function validate(){cleanLabels();var r=gR(),c=gC();var ngCount=0;var warnings=[];var compB=cB(c.company),compOk=!c.company||compB<=40;if(!compOk)ngCount++;$('cCompany').innerHTML=barHTML(compB,40,compOk)+compB+'/40B <span class="badge '+(compOk?'badge-ok':'badge-ng')+'">'+(compOk?'OK':'NG')+'</span>';$('fCompany').className=c.company?(compOk?'ok':'ng'):'';$('dCompany').textContent=c.company?'全角'+Math.floor((compB-cH(c.company))/2)+'+半角'+cH(c.company):'';showFixNote('fixCompany',preFixValues.company,r.company);var dB=cB(c.dept),nB=cB(c.name),kB=cB(c.kana),comB=dB+nB+kB,comOk=comB===0||comB<=35;if(!comOk)ngCount++;$('cDept').innerHTML=barHTML(dB,35,comOk)+dB+'B '+(comOk?'✅':'❌');$('cName').innerHTML=barHTML(nB,35,comOk)+nB+'B '+(comOk?'✅':'❌');$('cKana').innerHTML=barHTML(kB,35,comOk)+kB+'B '+(comOk?'✅':'❌');showFixNote('fixDept',preFixValues.dept,r.dept);showFixNote('fixName',preFixValues.name,r.name);showFixNote('fixKana',preFixValues.kana,r.kana);$('cCombined').innerHTML='<span><span class="tip" data-tip="3項目合計で35バイトまで">部署('+dB+')+氏名('+nB+')+ｶﾅ('+kB+')</span>＝<b>'+comB+'</b>/35B</span><span class="badge '+(comOk?'badge-ok':'badge-ng')+'">'+(comOk?'OK':'NG')+'</span>';vPhone('cTel1','fTel1',r.tel1,c.tel1);vPhone('cTel2','fTel2',r.tel2,c.tel2);if(c.tel1){var vp1=validatePhone(c.tel1);if(vp1&&!vp1.ok)ngCount++;}if(c.tel2&&!isNoneIndicator(r.tel2)){var vp2=validatePhone(c.tel2);if(vp2&&!vp2.ok)ngCount++;}vZ(r.zip,c.zip);$('cState').innerHTML=c.state?'<span class="badge '+(PREFS.includes(c.state)?'badge-ok':'badge-warn')+'">'+(PREFS.includes(c.state)?'OK':'確認')+'</span>':'';$('cCity').innerHTML=c.city?cC(c.city)+'字':'';var cl=cC(c.city),a1c=cC(c.addr1),a1t=cl+a1c,a1ok=!c.addr1||a1t<=22;if(!a1ok)ngCount++;$('cAddr1').innerHTML=barHTML(a1t,22,a1ok)+'City('+cl+')+Line1('+a1c+')='+a1t+'/22字 <span class="badge '+(a1ok?'badge-ok':'badge-ng')+'">'+(a1ok?'OK':'NG')+'</span>';$('fAddr1').className=c.addr1?(a1ok?'ok':'ng'):'';$('dAddr1').textContent=c.addr1?'残'+Math.max(0,22-a1t)+'字':'';var a2c=cC(c.addr2),a2ok=!c.addr2||a2c<=22;if(!a2ok)ngCount++;$('cAddr2').innerHTML=barHTML(a2c,22,a2ok)+a2c+'/22字 <span class="badge '+(a2ok?'badge-ok':'badge-ng')+'">'+(a2ok?'OK':'NG')+'</span>';$('fAddr2').className=c.addr2?(a2ok?'ok':'ng'):'';$('dAddr2').textContent=c.addr2?'残'+Math.max(0,22-a2c)+'字':'';var ii=getInstInner(r.inst),iN=norm(ii),iL=cC(iN),iOk=!ii||iL<=15;if(!iOk)ngCount++;if(r.inst){$('cInst').innerHTML=iL+'/15字 <span class="badge '+(iOk?'badge-ok':'badge-ng')+'">'+(iOk?'OK':'NG')+'</span>';$('fInst').className=iOk?'ok':'ng';$('instPreview').textContent=iN?'→ '+DS+iN+DS:'';}else{$('cInst').innerHTML='';$('fInst').className='';$('instPreview').textContent='';}lastNgCount=ngCount;var hasData=FI.some(function(id){return $(id).value;});var ss=$('statusSummary');if(!hasData){ss.textContent='';ss.className='status-summary';}else if(ngCount===0){ss.textContent='✅ 全項目OK';ss.className='status-summary badge-ok';}else{ss.textContent='❌ '+ngCount+'項目NG';ss.className='status-summary badge-ng';}if(hasData){var sw=checkSwapWarning(c.company,c.name);warnings=warnings.concat(sw);var bf=checkBuildingFloor(c.addr1,c.addr2);if(bf)warnings.push(bf);var rq=checkRequired(c);warnings=warnings.concat(rq);var pc=checkPrefCity(c.state,c.city);if(pc&&!pc.ok)warnings.push(pc.msg);if(c.tel1&&c.tel2&&c.tel1===c.tel2)warnings.push('電話番号1と電話番号2が同じ値です');}var wc=$('warnCard');if(warnings.length){wc.style.display='block';$('warnList').innerHTML=warnings.map(function(w){return '<div class="warn-item"><span>⚠️</span><span>'+escH(w)+'</span></div>';}).join('');}else{wc.style.display='none';}chkP(r);updCopy(r,c);showExcluded();updateInlinePresets();}
+function vPhone(cid,fid,rv,cv){var el=$(cid);if(!rv){el.innerHTML='';return;}var vp=validatePhone(cv);var ch=rv!==cv;var m='';if(ch)m+='<span class="badge badge-warn">→'+escH(cv)+'</span> ';if(vp){m+='<span class="phone-type">'+escH(vp.label)+'</span> ';if(vp.ok){m+='<span class="badge badge-ok">OK</span>';}else{m+='<span class="badge badge-ng">'+vp.actual+'/'+vp.expected+'桁 NG</span>';}}el.innerHTML=m;}
+function vZ(rv,cv){var el=$('cZip');if(!rv){el.innerHTML='';return;}var ok=/^\d{3}-\d{4}$/.test(cv),ch=rv!==cv;var m='';if(ch)m+='<span class="badge badge-warn">→'+escH(cv)+'</span> ';var zr=checkZipRange(cv);if(ok&&zr.ok){m+='<span class="badge badge-ok">OK</span>';}else{m+='<span class="badge badge-ng">NG</span>';}el.innerHTML=m;}
+function chkP(r){var all=FK.map(function(k){return r[k];}).join(''),found=fP(all),card=$('prohibitedCard');if(!found.length){card.style.display='none';return;}card.style.display='block';$('prohibitedList').innerHTML=found.map(function(x){return '<span class="prohibited-item"><span class="diff-from">'+escH(x.from)+'</span><span style="color:var(--ok);font-weight:700;">→</span><span class="diff-to">'+escH(x.to)+'</span></span>';}).join(' ');}
+function showExcluded(){var ec=$('excludedCard');if(!excludedLines.length){ec.style.display='none';return;}ec.style.display='block';$('excludedList').innerHTML=excludedLines.map(function(l){return '<div class="excluded-item">'+escH(l)+'</div>';}).join('');}
+function updCopy(r,c){var hasAny=FI.some(function(id){return $(id).value;});if(!hasAny){$('copyArea').innerHTML='<div style="padding:14px;color:var(--muted);font-size:.8rem;text-align:center;">データがありません</div>';return;}var h='';for(var i=0;i<FK.length;i++){var k=FK[i],cv=c[k],pv=preFixValues[k]||'';var diffs=cv?findCharDiffs(pv,cv):[];if(cv){h+='<div class="copy-row"><div class="cl">'+escH(FL[i])+'</div><div class="cv">'+escH(cv)+'</div><div class="cb"><button class="copy-btn2" data-idx="'+i+'">コピー</button></div></div>';if(diffs.length)h+='<div class="diff-row">🔄 '+diffHTML(diffs)+'</div>';}else{h+='<div class="copy-row"><div class="cl">'+escH(FL[i])+'</div><div class="cv empty">（データなし）</div><div class="cb"></div></div>';}}var area=$('copyArea');area.innerHTML=h;area.onclick=function(e){var b=e.target.closest('.copy-btn2');if(!b)return;var idx=+b.dataset.idx,v=gC()[FK[idx]];if(!v)return;dCopy(v).then(function(){b.textContent='✅済';b.disabled=true;b.style.background='var(--ok)';setTimeout(function(){b.textContent='コピー';b.disabled=false;b.style.background='';},1500);});};}
+function copyAllWithLabels(){var c=gC();var lines=FK.map(function(k,i){return FL[i]+'：'+(c[k]||'');});dCopy(lines.join('\n')).then(function(){var b=$('copyAllBtn');b.textContent='✅ コピー済み';b.className='btn btn-copied';});}
+function dCopy(t){if(navigator.clipboard&&window.isSecureContext){return navigator.clipboard.writeText(t).then(showN).catch(function(){return fbCopy(t);});}return fbCopy(t);}
+function fbCopy(t){return new Promise(function(resolve){var a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;left:-9999px;top:-9999px;opacity:0';document.body.appendChild(a);a.focus();a.select();try{document.execCommand('copy');showN();}catch(e){alert('コピーに失敗しました。');}document.body.removeChild(a);resolve();});}
+function showN(){$('copyNotice').style.display='block';setTimeout(function(){$('copyNotice').style.display='none';},2500);}
+function cleanPhoneValue(v){if(!v)return v;return v.replace(/[\s\u3000]+\d{1,2}:\d{2}\s*[~～\-]\s*\d{1,2}:\d{2}[\s\u3000]*(\([^)]*\))?/g,'').replace(/[\s\u3000]+（[^）]*）\s*$/g,'').replace(/\s*[\/／]\s*$/,'').trim();}
+function splitPhoneValue(val,hasTel2){if(isNoneIndicator(val))return{t1:val,t2:null};var parts=val.split(PHONE_SEP_RE);if(parts.length>=2&&!hasTel2){var t2=parts[1].trim();if(!t2)return{t1:parts[0].trim(),t2:null};return{t1:parts[0].trim(),t2:t2};}return{t1:val,t2:null};}
+function isPhoneLine(line){var d=line.replace(/[\-\s\u3000ー−‐\uFF0D\(\)]/g,'');return /^\d{10,11}$/.test(d);}
+function isAddrLine(line){if(/\d{3}[\-\uFF0D]?\d{4}/.test(line))return true;if(/〒/.test(line))return true;for(var i=0;i<PREFS.length;i++){if(line.indexOf(PREFS[i])!==-1)return true;}return false;}
+function isInstLine(line){return /^\$[^$]+\$/.test(line.trim());}
+function isNameLine(line){if(hasHonorific(line))return true;var parts=line.split(/[\s　]+/).filter(function(x){return x;});if(parts.length<2)return false;var hasKanji=parts.some(function(p){return /[\u4E00-\u9FFF]/.test(p);});var hasKana=parts.some(function(p){return isKanaLike(p);});if(hasKanji&&hasKana)return true;var kanjiGroups=parts.filter(function(p){return /^[\u4E00-\u9FFF]{1,4}$/.test(p);});if(kanjiGroups.length>=2)return true;return false;}
+function isKanaReadingLine(line){var t=line.trim();return t.length>=2&&/^[ァ-ヶー]+$/.test(t);}
+function isEmailLine(line){return /\S+[@＠]\S+\.\S+/.test(line.trim());}
+function isAddrHintLine(line){if(isAddrLine(line))return true;if(/[市区町村郡]/.test(line))return true;if(/[丁目番地号条通]/.test(line))return true;if(BRE.test(line))return true;if(/[0-9０-９]+\s*[FfＦｆ階]/.test(line))return true;return false;}
+function stripLineNum(line){return line.replace(/^\s*[0-9０-９]+[\.\．\)）]\s*/,'');}
+function stripQuote(line){return line.replace(/^\s*[>＞]\s*/,'');}
+function isNoteLine(line){return /^\s*※/.test(line);}
+function hasLabel(line){return /[^：:\s]{1,30}[：:]/.test(line);}
+function hasUnknownLabel(line){return /^[^：:\s]{1,20}[：:]/.test(line);}
+function couldBeLabeledLine(line){var s=stripLineNum(line).trim();if(hasLabel(s))return true;return /^(?:会社名?|法人名?|企業名?|顧客名?|お客様名?|部署名?|所属|担当者?名?|お?名前|氏名|フリガナ|ふりがな|カナ|かな|ﾌﾘｶﾞﾅ|電話番号?|TEL|携帯番号?|郵便番号?|〒|ZIP|ご?住所|送付先|配送先|建物名?|ビル名?|Instructions?|ドライバーコメント|コメント|メールアドレス|ﾒｰﾙｱﾄﾞﾚｽ|Email|e-?mail|メール|ﾒｰﾙ|mail)(?:[\s　]|[：:])/i.test(s);}
+function toggleCheckHelp(){var el=$('checkHelpContent'),t=el.previousElementSibling;el.classList.toggle('show');t.textContent=el.classList.contains('show')?'▼ 閉じる':'▶ 使い方を見る';}
+function parseBulk(){
+  var raw=$('bulkInput').value;
+  if(raw.length>MAX_INPUT){alert('入力が長すぎます（'+raw.length+'文字）。'+MAX_INPUT+'文字以内にしてください。');return;}
+  raw=raw.trim();if(!raw)return;
+  saveUndo('振り分け');
+  excludedLines=[];
+  FI.forEach(function(id){$(id).value='';});$('fAddrFull').value='';$('fPersonFull').value='';
+  var rawLines=raw.split(/\n/).map(function(l){return l.trimEnd();}).filter(function(l){return l.replace(/[\s\u3000]/g,'');});
+  var lines=[];
+  for(var i=0;i<rawLines.length;i++){var rl=rawLines[i];if(isNoteLine(rl)){excludedLines.push(rl.trim());continue;}var trimmed=stripQuote(rl.trim());if(i>0&&/^[\s\u3000]+\S/.test(rl)&&lines.length>0&&!couldBeLabeledLine(trimmed)){lines[lines.length-1]+=' '+trimmed;}else{lines.push(trimmed);}}
+  lines=lines.map(function(l){return rP(stripLineNum(l));});
+  var P='[\\s\\u3000・•\\-\\*►▸◇◆▲△▼▽■□●○★☆>＞]*';
+  var TEL_PAREN='(?:\\s*[（(][^）)]*[）)])?';
+  var TEL_SEP='(?:\\s*[：:]\\s*|\\s+)';
+  var lm={company:new RegExp('^'+P+'(会社名?|法人(団体)?名?|企業名?)\\s*[：:]\\s*','i'),customer:new RegExp('^'+P+'(顧客名?|お客様名?)\\s*[：:]\\s*','i'),dept:new RegExp('^'+P+'(部署名?|所属)\\s*[：:]\\s*','i'),deptNameCombo:new RegExp('^'+P+'(部署名?\\s*[・/／]\\s*(?:ご|御)?担当者名?(?:\\s*[（(][^）)]*[）)])?)\\s*[：:]\\s*','i'),nameCombo:new RegExp('^'+P+'((?:ご|御)?担当者?名?(?:\\s*[（(][^）)]*[）)])?|お?名前(?:\\s*[（(][^）)]*[）)])?|担当名?)\\s*[：:]\\s*','i'),name:new RegExp('^'+P+'(氏名)\\s*[：:]\\s*','i'),kana:new RegExp('^'+P+'(フリガナ|ふりがな|カナ|かな|ﾌﾘｶﾞﾅ|担当者名?\\s*[（(]\\s*(?:よみがな|読み|ヨミガナ|ﾖﾐｶﾞﾅ|フリガナ|ふりがな|カナ|かな)[^）)]*[）)])\\s*[：:]\\s*','i'),tel1:new RegExp('^'+P+'(第[一1](電話|TEL)?(番号)?'+TEL_PAREN+'|電話(番号)?\\s*[（(][^）)]*第?[一1]?[^）)]*連絡[^）)]*[）)]|電話(番号)?'+TEL_PAREN+'\\s*1|電話\\s*1|TEL\\s*1)'+TEL_SEP,'i'),tel2:new RegExp('^'+P+'(第[二2](電話|TEL)?(番号)?'+TEL_PAREN+'|電話(番号)?\\s*[（(][^）)]*第?[二2]?[^）)]*連絡[^）)]*[）)]|電話(番号)?'+TEL_PAREN+'\\s*2|電話\\s*2|TEL\\s*2|携帯番号?|携帯)'+TEL_SEP,'i'),tel:new RegExp('^'+P+'(電話(番号)?'+TEL_PAREN+'|電話|TEL)'+TEL_SEP,'i'),zip:new RegExp('^'+P+'(郵便(番号)?|〒|ZIP)\\s*[：:]\\s*','i'),addr:new RegExp('^'+P+'(ご?住所|送付先|配送先|[＠@])\\s*[：:]\\s*','i'),addr1:new RegExp('^'+P+'(住所\\s*1)\\s*[：:]\\s*','i'),addr2:new RegExp('^'+P+'(住所\\s*2|建物名?|ビル名?)\\s*[：:]\\s*','i'),inst:new RegExp('^'+P+'(Instructions?\\s*[>＞]?\\s*Field|Instructions?|ドライバーコメント|コメント)\\s*[：:]\\s*','i'),email:new RegExp('^'+P+'(メールアドレス|ﾒｰﾙｱﾄﾞﾚｽ|Email|e-?mail|メール|ﾒｰﾙ|mail)\\s*[：:]\\s*','i')};
+  var parsed={},hasL=false;
+  for(var i=0;i<lines.length;i++){var l=lines[i];for(var k in lm){if(lm[k].test(l)){hasL=true;parsed[k]=stripNote(l.replace(lm[k],'').trim());break;}}}
+  if(hasL){
+    if(parsed.company!=null)$('fCompany').value=parsed.company;
+    if(parsed.customer!=null){var cv=parsed.customer;if(isCorpOrSchool(cv)){if(!$('fCompany').value)$('fCompany').value=cv;}else{if(!parsed.nameCombo)parsed.nameCombo=cv;}}
+    if(parsed.deptNameCombo!=null)$('fPersonFull').value=parsed.deptNameCombo;else if(parsed.nameCombo!=null)$('fPersonFull').value=parsed.nameCombo;else if(parsed.name!=null)$('fPersonFull').value=parsed.name;
+    if(parsed.deptNameCombo!=null&&parsed.deptNameCombo){var sp=splitDeptNameKana(parsed.deptNameCombo);if(sp.dept)$('fDept').value=sp.dept;if(sp.name)$('fName').value=sp.name;if(sp.kana&&parsed.kana==null)$('fKana').value=sp.kana;}
+    if(parsed.dept!=null&&!$('fDept').value)$('fDept').value=parsed.dept;
+    if(parsed.nameCombo!=null&&parsed.nameCombo&&!$('fName').value){var sp2=splitDeptNameKana(parsed.nameCombo);if(sp2.dept&&!$('fDept').value)$('fDept').value=sp2.dept;$('fName').value=sp2.name;if(parsed.kana==null&&sp2.kana&&!$('fKana').value)$('fKana').value=sp2.kana;}
+    if(parsed.name!=null&&!$('fName').value){var sp3=splitNameKana(parsed.name);$('fName').value=sp3.name;if(parsed.kana==null&&sp3.kana&&!$('fKana').value)$('fKana').value=sp3.kana;}
+    if(parsed.kana!=null)$('fKana').value=parsed.kana;
+    var _pp=[];if($('fDept').value)_pp.push($('fDept').value);if($('fName').value)_pp.push($('fName').value);if($('fKana').value)_pp.push($('fKana').value);if(_pp.length)$('fPersonFull').value=_pp.join(' ');
+    if(parsed.tel1!=null){var sp1=splitPhoneValue(cleanPhoneValue(parsed.tel1),parsed.tel2!=null);$('fTel1').value=sp1.t1;if(sp1.t2!=null)$('fTel2').value=sp1.t2;}
+    else if(parsed.tel!=null){var spt=splitPhoneValue(cleanPhoneValue(parsed.tel),parsed.tel2!=null);$('fTel1').value=spt.t1;if(spt.t2!=null)$('fTel2').value=spt.t2;}
+    if(parsed.tel2!=null)$('fTel2').value=parsed.tel2;
+    if(parsed.zip!=null)$('fZip').value=parsed.zip;
+    var addrFull='';if(parsed.zip)addrFull+=parsed.zip;if(parsed.addr){addrFull+=parsed.addr;}
+    if(addrFull){$('fAddrFull').value=addrFull;var pa=pFA(addrFull);if(!$('fZip').value&&pa.zip)$('fZip').value=normZ(pa.zip);$('fState').value=pa.state;$('fCity').value=pa.city;$('fAddr1').value=pa.addr1;$('fAddr2').value=pa.addr2;if(parsed.addr2!=null&&parsed.addr2){if($('fAddr2').value){$('fAddr2').value+=' '+parsed.addr2;}else{$('fAddr2').value=parsed.addr2;}}}else{if(parsed.addr1!=null)$('fAddr1').value=parsed.addr1;if(parsed.addr2!=null)$('fAddr2').value=parsed.addr2;}
+    if(parsed.inst!=null)$('fInst').value=parsed.inst;
+    var unmatched=[];for(var ui=0;ui<lines.length;ui++){var ul=lines[ui],um=false;for(var uk in lm){if(lm[uk].test(ul)){um=true;break;}}if(!um&&!isKanaReadingLine(ul)){if(hasUnknownLabel(ul)){excludedLines.push(ul);}else if(!isNoteLine(ul)){unmatched.push(ul);}}}
+    if(unmatched.length){var umComp=null,umName=null,umAddr=[];for(var mi=0;mi<unmatched.length;mi++){var uml=unmatched[mi];if(!umComp&&(CORP_RE.test(uml)||SCHOOL_RE.test(uml))){umComp=uml;}else if(!umName&&isNameLine(uml)){umName=uml;}else{umAddr.push(uml);}}
+    if(umComp&&!$('fCompany').value)$('fCompany').value=umComp;
+    if(umName&&!$('fName').value){$('fPersonFull').value=umName;var snk=splitDeptNameKana(umName);if(snk.dept&&!$('fDept').value)$('fDept').value=snk.dept;$('fName').value=snk.name;if(snk.kana&&!$('fKana').value)$('fKana').value=snk.kana;var _pp2=[];if($('fDept').value)_pp2.push($('fDept').value);if($('fName').value)_pp2.push($('fName').value);if($('fKana').value)_pp2.push($('fKana').value);if(_pp2.length)$('fPersonFull').value=_pp2.join(' ');}
+    if(umAddr.length){var curAddr=$('fAddrFull').value;if(curAddr){var combined=curAddr+' '+umAddr.join(' ');$('fAddrFull').value=combined;var upa=pFA(combined);if(upa.zip&&!$('fZip').value)$('fZip').value=normZ(upa.zip);if(upa.state)$('fState').value=upa.state;if(upa.city)$('fCity').value=upa.city;$('fAddr1').value=upa.addr1;$('fAddr2').value=upa.addr2;}else{var addrCandidate=umAddr.join(' ');if(isAddrLine(addrCandidate)||/\d{3}[\-]?\d{4}/.test(addrCandidate)){$('fAddrFull').value=addrCandidate;var upa2=pFA(addrCandidate);if(!$('fZip').value&&upa2.zip)$('fZip').value=normZ(upa2.zip);if(!$('fState').value)$('fState').value=upa2.state;if(!$('fCity').value)$('fCity').value=upa2.city;if(!$('fAddr1').value)$('fAddr1').value=upa2.addr1;if(!$('fAddr2').value)$('fAddr2').value=upa2.addr2;}}}}
+  }else{
+    var phones=[],instLine=null,nameLine=null,emailLine=null,companyLine=null,addrParts=[],unclassified=[];
+    for(var j=0;j<lines.length;j++){var ln=lines[j];if(isInstLine(ln)){instLine=ln;continue;}if(isKanaReadingLine(ln)){excludedLines.push('(カナ読み) '+ln);continue;}if(isEmailLine(ln)){excludedLines.push('(Email) '+ln);continue;}if(PHONE_SEP_RE.test(ln)&&!isNoneIndicator(ln)){var pp=ln.split(PHONE_SEP_RE);var allPhone=pp.every(function(p){return isPhoneLine(p.trim());});if(allPhone){pp.forEach(function(p){if(p.trim())phones.push(p.trim());});continue;}}if(isPhoneLine(ln)){phones.push(ln);continue;}if(CORP_RE.test(ln)||SCHOOL_RE.test(ln)){companyLine=ln;continue;}if(isNameLine(ln)){nameLine=ln;continue;}unclassified.push(ln);}
+    if(!companyLine&&unclassified.length>0){var corpIdx=unclassified.findIndex(function(u){return CORP_RE.test(u)||SCHOOL_RE.test(u);});if(corpIdx>=0){companyLine=unclassified.splice(corpIdx,1)[0];}else{var hasAddr=unclassified.some(function(u){return isAddrHintLine(u);});if(hasAddr){var nonAddrIdx=-1;for(var ni=0;ni<unclassified.length;ni++){if(!isAddrHintLine(unclassified[ni])){nonAddrIdx=ni;break;}}if(nonAddrIdx>=0){companyLine=unclassified.splice(nonAddrIdx,1)[0];}else{companyLine=null;}}else{companyLine=unclassified.shift();}}}
+    var hasAddrHint=unclassified.some(function(u){return isAddrHintLine(u);});
+    if(hasAddrHint){addrParts=unclassified;unclassified=[];}
+    if(unclassified.length&&companyLine){companyLine+=' '+unclassified.join(' ');}else if(unclassified.length&&!companyLine){companyLine=unclassified.join(' ');}
+    if(companyLine)$('fCompany').value=companyLine;
+    if(nameLine)$('fPersonFull').value=nameLine;
+    if(nameLine){var snk=splitDeptNameKana(nameLine);if(snk.dept)$('fDept').value=snk.dept;if(snk.name)$('fName').value=snk.name;if(snk.kana)$('fKana').value=snk.kana;}
+    if(phones.length>=1)$('fTel1').value=phones[0];
+    if(phones.length>=2)$('fTel2').value=phones[1];
+    if(addrParts.length){var fullAddr=addrParts.join('');$('fAddrFull').value=fullAddr;var pfa=pFA(fullAddr);$('fZip').value=normZ(pfa.zip);$('fState').value=pfa.state;$('fCity').value=pfa.city;$('fAddr1').value=pfa.addr1;$('fAddr2').value=pfa.addr2;}
+    if(instLine)$('fInst').value=instLine;
+    $('stripBanner').textContent='⚡ ラベルなし入力を自動判別しました';$('stripBanner').style.display='block';clearTimeout(window._bt);window._bt=setTimeout(function(){$('stripBanner').style.display='none';},5000);
+  }
+  autoFixFields();resetCopyBtn();validate();
+  (lastNgCount>0?$('checkCard'):$('copyCard')).scrollIntoView({behavior:'smooth',block:'start'});
+}
+function clearAll(){saveUndo('全クリア');excludedLines=[];FI.forEach(function(id){$(id).value='';$(id).className='';});$('bulkInput').value='';$('fAddrFull').value='';$('fPersonFull').value='';$('prohibitedCard').style.display='none';$('warnCard').style.display='none';$('excludedCard').style.display='none';$('stripBanner').style.display='none';$('undoBanner').style.display='none';$('parsedResult').style.display='none';$('parsedPerson').style.display='none';$('instPreview').textContent='';['fixCompany','fixDept','fixName','fixKana'].forEach(function(id){$(id).textContent='';});preFixValues={};resetCopyBtn();validate();}
+function toggleHelp(){var el=$('helpContent'),t=el.previousElementSibling;el.classList.toggle('show');t.textContent=el.classList.contains('show')?'▼ 閉じる':'▶ 入力例・使い方を見る';}
+validate();
+</script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    
