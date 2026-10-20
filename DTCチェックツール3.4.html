@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DTCチェックツール</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"Segoe UI","Meiryo","Hiragino Kaku Gothic ProN",sans-serif;
+  font-size:14px;
+  line-height:1.6;
+  color:#1a1a1a;
+  background:#f2f2f2;
+  padding:32px 16px;
+  transition:background .2s,color .2s;
+}
+.container{max-width:720px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.title-row{display:flex;align-items:baseline;gap:8px;min-width:0}
+h1{font-size:20px;font-weight:600;white-space:nowrap}
+.title-version{font-size:13px;font-weight:400;color:#999;white-space:nowrap}
+.theme-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;flex-shrink:0}
+.theme-toggle-label{font-size:12px;color:#888}
+.toggle-track{
+  position:relative;width:40px;height:22px;
+  background:#ccc;border-radius:11px;transition:background .2s;
+}
+.toggle-knob{
+  position:absolute;top:2px;left:2px;width:18px;height:18px;
+  background:#fff;border-radius:50%;transition:left .2s;
+}
+.section-label{font-size:13px;font-weight:600;margin-bottom:8px}
+.required{
+  font-size:11px;font-weight:600;color:#dc3545;
+  margin-left:8px;vertical-align:middle;
+}
+.input-area{
+  background:#fff;
+  border:1px solid #d0d0d0;
+  border-radius:4px;
+  padding:24px;
+  margin-bottom:16px;
+  transition:background .2s,border-color .2s;
+}
+.input-group{margin-bottom:16px}
+.input-group:last-child{margin-bottom:0}
+textarea{
+  width:100%;
+  border:1px solid #d0d0d0;
+  border-radius:4px;
+  padding:8px;
+  font-family:Consolas,"Courier New",monospace;
+  font-size:13px;
+  resize:vertical;
+  background:#fff;
+  color:#1a1a1a;
+  transition:background .2s,border-color .2s,color .2s;
+}
+.log-textarea{height:200px}
+input[type="text"]{
+  border:1px solid #d0d0d0;
+  border-radius:4px;
+  padding:8px;
+  font-size:13px;
+  width:240px;
+  background:#fff;
+  color:#1a1a1a;
+  transition:background .2s,border-color .2s,color .2s;
+}
+.input-error{border-color:#dc3545 !important;box-shadow:0 0 0 2px rgba(220,53,69,.15) !important}
+.helper{font-size:12px;color:#888;margin-top:4px}
+.btn-row{display:flex;gap:8px;margin-bottom:32px}
+.btn{
+  flex:1;padding:12px;
+  background:#333;color:#fff;border:none;border-radius:4px;
+  font-size:14px;font-weight:600;cursor:pointer;
+  transition:background .2s;
+}
+.btn:hover{background:#555}
+.btn-reset{
+  flex:0 0 auto;padding:12px 24px;
+  background:transparent;color:#888;
+  border:1px solid #d0d0d0;border-radius:4px;
+  font-size:13px;font-weight:400;cursor:pointer;
+  transition:background .2s,border-color .2s,color .2s;
+}
+.btn-reset:hover{background:rgba(0,0,0,.04);border-color:#aaa}
+.result-area{display:none}
+.banner{
+  padding:16px 24px;border-radius:4px;
+  font-size:20px;font-weight:600;text-align:center;margin-bottom:16px;
+}
+.banner-ok{background:#d4edda;color:#155724;border:1px solid #b7dfb9}
+.banner-warn{background:#fff3cd;color:#856404;border:1px solid #ffe08a}
+.banner-ng{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+.card{
+  background:#fff;border:1px solid #d0d0d0;border-radius:4px;
+  padding:16px 24px;margin-bottom:8px;border-left:4px solid #d0d0d0;
+  transition:background .2s,border-color .2s;
+}
+.card-ok{border-left-color:#28a745}
+.card-warn{border-left-color:#ffc107}
+.card-ng{border-left-color:#dc3545}
+.card-skip{border-left-color:#adb5bd}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.card-title{font-size:14px;font-weight:600}
+.badge{
+  font-size:12px;font-weight:600;padding:2px 12px;
+  border-radius:12px;display:inline-block;
+}
+.b-ok{background:#d4edda;color:#155724}
+.b-warn{background:#fff3cd;color:#856404}
+.b-ng{background:#f8d7da;color:#721c24}
+.b-skip{background:#e9ecef;color:#6c757d}
+.card-detail{font-size:13px;color:#555;line-height:1.8}
+.ref{
+  margin-top:16px;padding:16px 24px;
+  font-size:12px;color:#888;border-top:1px solid #e0e0e0;
+  transition:border-color .2s;
+}
+.ref span{margin-right:24px}
+
+/* ── ダークモード ── */
+body.dark{background:#1e1e1e;color:#e0e0e0}
+body.dark .title-version{color:#666}
+body.dark .theme-toggle-label{color:#777}
+body.dark .toggle-track{background:#28a745}
+body.dark .toggle-knob{left:20px}
+body.dark .input-area{background:#2a2a2a;border-color:#444}
+body.dark textarea{background:#333;color:#e0e0e0;border-color:#555}
+body.dark input[type="text"]{background:#333;color:#e0e0e0;border-color:#555}
+body.dark .input-error{border-color:#dc3545 !important;box-shadow:0 0 0 2px rgba(220,53,69,.3) !important}
+body.dark .btn{background:#555}
+body.dark .btn:hover{background:#777}
+body.dark .btn-reset{color:#888;border-color:#555;background:transparent}
+body.dark .btn-reset:hover{background:rgba(255,255,255,.06);border-color:#777}
+body.dark .card{background:#2a2a2a;border-color:#444;border-left-color:#555}
+body.dark .card-ok{border-left-color:#28a745}
+body.dark .card-warn{border-left-color:#ffc107}
+body.dark .card-ng{border-left-color:#dc3545}
+body.dark .card-skip{border-left-color:#6c757d}
+body.dark .card-detail{color:#aaa}
+body.dark .banner-ok{background:#1a3a1a;color:#7ec47e;border-color:#2d5a2d}
+body.dark .banner-warn{background:#3a3320;color:#e6c44d;border-color:#5a4d20}
+body.dark .banner-ng{background:#3a1a1a;color:#e08080;border-color:#5a2d2d}
+body.dark .b-ok{background:#1a3a1a;color:#7ec47e}
+body.dark .b-warn{background:#3a3320;color:#e6c44d}
+body.dark .b-ng{background:#3a1a1a;color:#e08080}
+body.dark .b-skip{background:#333;color:#888}
+body.dark .ref{color:#777;border-color:#444}
+body.dark .helper{color:#777}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="title-row">
+      <h1>DTCチェックツール</h1>
+      <span class="title-version" id="titleVersion"></span>
+    </div>
+    <div class="theme-toggle" onclick="toggleTheme()">
+      <span class="theme-toggle-label" id="themeLabel">ダークモード</span>
+      <div class="toggle-track" id="toggleTrack">
+        <div class="toggle-knob" id="toggleKnob"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <div class="input-group">
+      <div class="section-label">ログ貼り付け<span class="required">必須</span></div>
+      <textarea id="logInput" class="log-textarea" placeholder="DTCログを貼り付けてください"></textarea>
+    </div>
+    <div class="input-group">
+      <div class="section-label">Call Started（入電開始時刻）<span class="required">必須</span></div>
+      <input type="text" id="callStarted" placeholder="2026/07/27 18:52">
+      <div class="helper">Voice Call Details の Call Started の値を貼り付けてください</div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" onclick="analyzeLog()">解析する</button>
+    <button class="btn-reset" onclick="resetAll()">リセット</button>
+  </div>
+
+  <div id="resultArea" class="result-area"></div>
+</div>
+
+<script>
+/* ── バージョン定義（この1箇所のみ変更すれば全表示に反映） ── */
+var APP_VERSION="v3.4";
+document.title="DTCチェックツール "+APP_VERSION;
+document.getElementById("titleVersion").textContent=APP_VERSION;
+
+/* ── ダークモード切り替え ── */
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+  var isDark=document.body.classList.contains("dark");
+  try{localStorage.setItem("dtc-theme",isDark?"dark":"light");}catch(e){}
+}
+(function(){
+  var saved=null;
+  try{saved=localStorage.getItem("dtc-theme");}catch(e){}
+  if(saved==="dark"){
+    document.body.classList.add("dark");
+  }else if(saved===null&&window.matchMedia&&window.matchMedia("(prefers-color-scheme:dark)").matches){
+    document.body.classList.add("dark");
+  }
+})();
+
+/* ── リセット ── */
+function resetAll(){
+  document.getElementById("logInput").value="";
+  document.getElementById("callStarted").value="";
+  var area=document.getElementById("resultArea");
+  area.style.display="none";
+  area.innerHTML="";
+  document.getElementById("logInput").classList.remove("input-error");
+  document.getElementById("callStarted").classList.remove("input-error");
+  document.getElementById("logInput").focus();
+}
+
+/* ── メイン解析 ── */
+function analyzeLog(){
+  var log=document.getElementById("logInput").value;
+  var csRaw=document.getElementById("callStarted").value;
+  var area=document.getElementById("resultArea");
+  var elLog=document.getElementById("logInput");
+  var elCS=document.getElementById("callStarted");
+
+  area.style.display="none";
+  area.innerHTML="";
+  elLog.classList.remove("input-error");
+  elCS.classList.remove("input-error");
+
+  if(!log.trim()){
+    area.style.display="block";
+    area.innerHTML='<div class="banner banner-ng">ログを入力してください</div>';
+    elLog.classList.add("input-error");
+    elLog.focus();
+    return;
+  }
+  if(!csRaw.trim()){
+    area.style.display="block";
+    area.innerHTML='<div class="banner banner-ng">Call Started（入電開始時刻）を入力してください</div>';
+    elCS.classList.add("input-error");
+    elCS.focus();
+    return;
+  }
+
+  var csInfo=extractCSTime(csRaw);
+
+  var jstTimeStr="不明";
+  var jstDate=null;
+  var tm=log.match(/start_time_utc:\s*(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/);
+  if(tm){
+    var iso=tm[1]+"-"+tm[2]+"-"+tm[3]+"T"+tm[4]+":"+tm[5]+":"+tm[6]+"Z";
+    jstDate=new Date(iso);
+    jstTimeStr=fmtDateJST(jstDate);
+  }
+
+  var lm=log.match(/language:\s*(\w+)/i);
+  var language=lm?lm[1].toLowerCase():"unknown";
+
+  var symRe=/^Symptom Description:\s*(.*)$/gim;
+  var symMatch;
+  var phenomCount=0;
+  while((symMatch=symRe.exec(log))!==null){
+    var sv=symMatch[1].trim();
+    if(sv!==""&&sv.toUpperCase()!=="NOT-AVAILABLE"){
+      phenomCount++;
+    }
+  }
+
+  var hasInternal=/Internal notes:|内部メモ:/i.test(log);
+
+  var cm=log.match(/^Active open case:\s*(.*)$/im);
+  var caseVal="";
+  var caseOk=false;
+  if(cm){
+    caseVal=cm[1].replace(/^[\s|]+/,"").replace(/[\s|]+$/,"");
+    if(caseVal!==""&&caseVal.toUpperCase()!=="NOT-AVAILABLE"){
+      caseOk=true;
+    }
+  }
+
+  var items=[];
+  var issues=0;
+  var hasNgFlag=false;
+
+  if(csInfo&&jstDate){
+    var ej=elapsedJudge(jstDate,csInfo);
+    items.push(ej);
+    if(ej.st!=="ok"){issues++;if(ej.st==="ng")hasNgFlag=true;}
+  }else if(!csInfo){
+    items.push({t:"入電からの経過時間",st:"skip",b:"判定不可",
+      d:"Call Started の日時を認識できませんでした。形式を確認してください"});
+  }else{
+    items.push({t:"入電からの経過時間",st:"skip",b:"判定不可",
+      d:"Call Started : "+csInfo.display+"<br>DTCログ開始 : 取得できませんでした<br>ログから start_time_utc を取得できませんでした"});
+  }
+
+  if(phenomCount>=3){
+    items.push({t:"現象の詳細",st:"ng",b:"NG",d:phenomCount+" 回（3回以上）"});
+    issues++;hasNgFlag=true;
+  }else{
+    items.push({t:"現象の詳細",st:"ok",b:"OK",d:phenomCount+" 回"});
+  }
+
+  if(hasInternal){
+    items.push({t:"内部ログ",st:"ok",b:"OK",d:"入力あり"});
+  }else{
+    items.push({t:"内部ログ",st:"ng",b:"NG",d:"入力漏れ"});
+    issues++;hasNgFlag=true;
+  }
+
+  if(caseOk){
+    items.push({t:"アクティブなオープンケース",st:"ok",b:"OK",d:caseVal});
+  }else{
+    items.push({t:"アクティブなオープンケース",st:"warn",b:"要確認",
+      d:"アクティブなオープンケースに紐づいていません"});
+    issues++;
+  }
+
+  var h="";
+  if(issues===0){
+    h+='<div class="banner banner-ok">すべて問題ありません</div>';
+  }else{
+    var bc=hasNgFlag?"banner-ng":"banner-warn";
+    h+='<div class="banner '+bc+'">'+issues+'件 要確認</div>';
+  }
+
+  for(var i=0;i<items.length;i++){
+    var it=items[i];
+    h+='<div class="card card-'+it.st+'">';
+    h+='<div class="card-head">';
+    h+='<span class="card-title">'+it.t+'</span>';
+    h+='<span class="badge b-'+it.st+'">'+it.b+'</span>';
+    h+='</div>';
+    h+='<div class="card-detail">'+it.d+'</div>';
+    h+='</div>';
+  }
+
+  h+='<div class="ref">';
+  h+='<span>言語: '+language+'</span>';
+  h+='<span>日本時間: '+jstTimeStr+'</span>';
+  h+='</div>';
+
+  area.innerHTML=h;
+  area.style.display="block";
+}
+
+function extractCSTime(s){
+  var m=s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s+(\d{1,2}):(\d{2})/);
+  if(!m)return null;
+  var display=m[1]+"/"+("0"+m[2]).slice(-2)+"/"+("0"+m[3]).slice(-2)+" "+("0"+m[4]).slice(-2)+":"+m[5];
+  var utcMs=Date.UTC(parseInt(m[1],10),parseInt(m[2],10)-1,parseInt(m[3],10),parseInt(m[4],10),parseInt(m[5],10),0)-9*3600000;
+  return{display:display,date:new Date(utcMs)};
+}
+
+function fmtDateJST(d){
+  var j=new Date(d.getTime()+9*3600000);
+  return j.getUTCFullYear()+"/"+("0"+(j.getUTCMonth()+1)).slice(-2)+"/"+("0"+j.getUTCDate()).slice(-2)+" "+("0"+j.getUTCHours()).slice(-2)+":"+("0"+j.getUTCMinutes()).slice(-2)+":"+("0"+j.getUTCSeconds()).slice(-2);
+}
+
+function fmtSec(sec){
+  if(sec<0)sec=0;
+  return Math.floor(sec/60)+"分"+(sec%60)+"秒";
+}
+
+function elapsedJudge(jst,csInfo){
+  var maxSec=Math.floor((jst.getTime()-csInfo.date.getTime())/1000);
+  var minSec=Math.floor((jst.getTime()-(csInfo.date.getTime()+59000))/1000);
+  if(minSec<0)minSec=0;
+
+  var timeLines="Call Started : "+csInfo.display+"<br>DTCログ開始 : "+fmtDateJST(jst);
+
+  if(maxSec<0){
+    return{t:"入電からの経過時間",st:"warn",b:"要確認",
+      d:timeLines+"<br>DTCログの開始時刻が入電より前です。このログは別の通話のものである可能性があります"};
+  }
+
+  var lim=900;
+  var range=fmtSec(minSec)+" ～ "+fmtSec(maxSec);
+
+  if(maxSec<=lim){
+    return{t:"入電からの経過時間",st:"ok",b:"OK",
+      d:timeLines+"<br>経過時間 : "+range};
+  }
+  if(minSec<=lim){
+    return{t:"入電からの経過時間",st:"warn",b:"要確認",
+      d:timeLines+"<br>経過時間 : "+range+"<br>Call Startedが分単位のため、秒によっては超過の可能性あり"};
+  }
+  return{t:"入電からの経過時間",st:"ng",b:"NG",
+    d:timeLines+"<br>経過時間 : "+range+"（15分超過）"};
+}
+</script>
+</body>
+</html>
