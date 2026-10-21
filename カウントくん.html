@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>文字数カウンター</title>
+ 
+<style>
+body {
+    font-family: Arial, sans-serif;
+    max-width: 1600px;
+    margin: 20px auto;
+    padding: 20px;
+}
+ 
+h2 {
+    margin-bottom: 25px;
+}
+ 
+.field {
+    margin-bottom: 20px;
+}
+ 
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+ 
+textarea {
+    width: 100%;
+    height: 45px;
+    padding: 8px;
+    font-size: 18px;
+    line-height: 1.4;
+    box-sizing: border-box;
+    resize: none;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+}
+ 
+.result {
+    margin-top: 4px;
+    font-weight: bold;
+    font-size: 14px;
+}
+ 
+.ok {
+    color: green;
+}
+ 
+.ng {
+    color: red;
+}
+ 
+.warning {
+    color: red;
+    font-size: 12px;
+    margin-top: 2px;
+}
+</style>
+</head>
+ 
+<body>
+ 
+<h2>⏰️カウントくん⏰️</h2>
+ 
+<div class="field">
+<label>Alternate Account/顧客名（40byteまで）</label>
+<textarea id="customer"></textarea>
+<div id="customerResult" class="result">0 / 40 byte</div>
+<div id="customerWarning" class="warning"></div>
+</div>
+ 
+<div class="field">
+<label>Contact/担当者名（34byteまで）</label>
+<textarea id="contact"></textarea>
+<div id="contactResult" class="result">0 / 34 byte</div>
+<div id="contactWarning" class="warning"></div>
+</div>
+ 
+<div class="field">
+<label>住所（22文字まで）</label>
+<textarea id="address"></textarea>
+<div id="addressResult" class="result">0 / 22 文字</div>
+<div id="addressWarning" class="warning"></div>
+</div>
+ 
+<div class="field">
+<label>ドライバコメント　※全ての記号使用禁止（$$除き15文字まで）</label>
+<textarea id="driver"></textarea>
+<div id="driverResult" class="result">0 / 15 文字</div>
+<div id="driverWarning" class="warning"></div>
+</div>
+ 
+<script>
+ 
+// バイト数計算（全角=2byte、半角=1byte）
+function getByteCount(str) {
+    let bytes = 0;
+ 
+    for (let char of str) {
+        bytes += char.charCodeAt(0) <= 255 ? 1 : 2;
+    }
+ 
+    return bytes;
+}
+ 
+// 環境依存文字判定
+function hasMachineDependentChar(str) {
+ 
+    const regex =
+    /[①-⑳⑴-⒇Ⅰ-Ⅻⅰ-ⅻ㈱㈲㈹㍿℡№㏍㍾㍽㍼㍻㋿ｦ-ﾟ髙﨑塚神靖晴﨔]/u;
+ 
+    return regex.test(str);
+}
+ 
+function updateResult(id, limit, type) {
+ 
+    const textarea = document.getElementById(id);
+    const value = textarea.value;
+ 
+    let count = 0;
+ 
+    if (type === "byte") {
+        count = getByteCount(value);
+    } else {
+        count = value.length;
+    }
+ 
+    const result =
+        document.getElementById(id + "Result");
+ 
+    const warning =
+        document.getElementById(id + "Warning");
+ 
+    result.textContent =
+        count + " / " + limit +
+        (type === "byte" ? " byte" : " 文字");
+ 
+    // 桁数判定
+    if (count <= limit) {
+        result.className = "result ok";
+        textarea.style.borderColor = "green";
+    } else {
+        result.className = "result ng";
+        textarea.style.borderColor = "red";
+    }
+ 
+    // 環境依存文字判定
+    if (hasMachineDependentChar(value)) {
+        warning.textContent =
+        "⚠ 環境依存文字が含まれています";
+        textarea.style.backgroundColor = "#fff0f0";
+    } else {
+        warning.textContent = "";
+        textarea.style.backgroundColor = "";
+    }
+}
+ 
+[
+    { id: "customer", limit: 40, type: "byte" },
+    { id: "contact", limit: 34, type: "byte" },
+    { id: "address", limit: 22, type: "char" },
+    { id: "driver", limit: 15, type: "char" }
+].forEach(item => {
+ 
+    document
+        .getElementById(item.id)
+        .addEventListener("input", () => {
+ 
+            updateResult(
+                item.id,
+                item.limit,
+                item.type
+            );
+ 
+        });
+ 
+});
+ 
+</script>
+ 
+</body>
+</html>
